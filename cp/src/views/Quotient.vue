@@ -1,16 +1,19 @@
 <template>
   <div class="Quotient">
-    <DataView></DataView>
+    <DataComponent></DataComponent>
+    <ViewComponent></ViewComponent>
   </div>
 </template>
 
 <script>
-import DataView from "@/components/QuotientData.vue";
+import DataComponent from "@/components/QuotientData.vue";
+import ViewComponent from "@/components/StandardView.vue";
 
 export default {
   name: "Quotient",
   components: {
-    DataView,
+    DataComponent,
+    ViewComponent,
   },
   inject: ["reload"],
   data: function () {

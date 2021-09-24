@@ -37,13 +37,13 @@
       </a-button>
 
       <template v-for="h_item in dataTableInfo.red" :slot="h_item.key">
-        <div :key="'hb_' + h_item.key">
+        <div :key="h_item.key">
           <a-button
             type="link"
             size="small"
-            @click="redAnalysisClick(parseInt(h_item.key.slice(3)))"
+            @click="redAnalysisClick(h_item.index)"
           >
-            {{ h_item.key.slice(3) }}
+            {{ h_item.index }}
           </a-button>
           <a-input-number
             id="inputNumber"
@@ -56,13 +56,13 @@
       </template>
 
       <template v-for="h_cell in dataTableInfo.blue" :slot="h_cell.key">
-        <div :key="'hb_' + h_cell.key">
+        <div :key="h_cell.key">
           <a-button
             type="link"
             size="small"
-            @click="blueAnalysisClick(parseInt(h_cell.key.slice(4)))"
+            @click="blueAnalysisClick(h_cell.index)"
           >
-            {{ h_cell.key.slice(4) }}
+            {{ h_cell.index }}
           </a-button>
           <a-input-number
             id="inputNumber"
@@ -100,22 +100,11 @@
         <a-button type="link" @click="analysisClick"> 全数据分析 </a-button>
       </template>
     </a-table>
-    <a-drawer
-      :title="viewTitle"
-      placement="bottom"
-      :closable="false"
-      :visible="visible"
-      :destroyOnClose="true"
-      @close="onClose"
-      height="400PX"
-      ><div id="main"></div
-    ></a-drawer>
   </div>
 </template>
 
 <script>
-import * as echarts from "echarts";
-import { requestUrl, request } from "@/utils/Http.js";
+import { mapMutations, mapActions, mapGetters, mapState } from "vuex";
 
 export default {
   name: "QuotientData",
@@ -124,8 +113,6 @@ export default {
   data: function () {
     return {
       columns: [],
-      dataInfo: {},
-      baseInfo: {},
       //表格分页参数
       pagination: {
         pageNo: 1,
@@ -139,15 +126,13 @@ export default {
         total: 0, //总条数
         showQuickJumper: true, //显示跳转输入框
       },
-      visible: false,
-      viewTitle: "",
       currentPage: 1,
-      dataTableInfo: { red: [], blue: [] },
     };
   },
   created: function () {
-    this.baseInfo = this.$route.query;
-
+    this.resetState();
+    // this.baseInfo = this.$route.query;
+    this.setBaseInfo(this.$route.query);
     var idWidth = 50;
     var IssueNumberWidth = 80;
     var dataWidth = 50;
@@ -182,7 +167,6 @@ export default {
     for (var i = 1; i < redBallNum + 1; i++) {
       var redKey = "red" + i;
       var subObjRed = {
-        // title: i,
         key: redKey,
         width: dataWidth,
         slots: { title: redKey },
@@ -191,15 +175,18 @@ export default {
       };
       objRed.children.push(subObjRed);
       var redInfo = {
+        name: "红球" + i,
+        index: i,
         key: redKey,
         value: 1,
+        selected: false,
         maxValue: this.baseInfo.rule
           ? this.baseInfo.rule.redBallMaxValue
             ? this.baseInfo.rule.redBallMaxValue
             : 35
           : 35,
       };
-      this.dataTableInfo.red.push(redInfo);
+      this.addDataTableRedInfo(redInfo);
     }
     this.columns.push(objRed);
 
@@ -216,7 +203,6 @@ export default {
     for (var j = 1; j < blueBallNum + 1; j++) {
       var blueKey = "blue" + j;
       var subObjBlue = {
-        // title: j,
         key: blueKey,
         width: dataWidth,
         slots: { title: blueKey },
@@ -225,20 +211,26 @@ export default {
       };
       objBlue.children.push(subObjBlue);
       var blueInfo = {
+        name: "蓝球" + j,
+        index: j,
         key: blueKey,
         value: 1,
+        selected: false,
         maxValue: this.baseInfo.rule
           ? this.baseInfo.rule.blueBallMaxValue
             ? this.baseInfo.rule.blueBallMaxValue
             : 16
           : 16,
       };
-      this.dataTableInfo.blue.push(blueInfo);
+      this.addDataTableBlueInfo(blueInfo);
     }
     this.columns.push(objBlue);
 
     this.currentPage = 1;
-    this.getData();
+    this.setDataInfoAction().then((msg) => {
+      this.pagination.total = msg.count;
+      this.pagination.pageSize = msg.pageSize;
+    });
   },
   watch: {
     $route() {
@@ -246,337 +238,134 @@ export default {
     },
     "$route.path": function () {},
   },
+  computed: {
+    ...mapGetters("QuotientStore", {
+      getDataInfoItemByKey: "getDataInfoItemByKey",
+      redAnalysisByIndex: "redAnalysisByIndex",
+      redAnalysis: "redAnalysis",
+      blueAnalysisByIndex: "blueAnalysisByIndex",
+      blueAnalysis: "blueAnalysis",
+      analysis: "analysis",
+      getDataTableRedInfoByIndex: "getDataTableRedInfoByIndex",
+      getDataTableBlueInfoByIndex: "getDataTableBlueInfoByIndex",
+    }),
+    ...mapState("QuotientStore", {
+      dataInfo: "dataInfo",
+      baseInfo: "baseInfo",
+      dataTableInfo: "dataTableInfo",
+    }),
+  },
   methods: {
-    getData: function (pageQueryParam, pageSizeQueryParam) {
-      var param = {};
-      if (Object.keys(this.dataInfo).length > 0) {
-        param[this.dataInfo.pageQueryParam] = pageQueryParam;
-        param[this.dataInfo.pageSizeQueryParam] = pageSizeQueryParam;
-      }
-      request(
-        requestUrl(this.baseInfo.url, "get", this.baseInfo.ascription, param),
-        "get"
-      ).then((response) => {
-        // 2、处理正常的数据逻辑
-        this.dataInfo = response.data;
-        this.pagination.total = this.dataInfo.count;
-        this.pagination.pageSize = this.dataInfo.pageSize;
-      });
-    },
+    ...mapMutations("QuotientStore", {
+      addDataTableRedInfo: "addDataTableRedInfo",
+      addDataTableBlueInfo: "addDataTableBlueInfo",
+      setBaseInfo: "setBaseInfo",
+      resetState: "resetState",
+      setDataTableRedSelectedInfoByKey: "setDataTableRedSelectedInfoByKey",
+      setDataTableBlueSelectedInfoByKey: "setDataTableBlueSelectedInfoByKey",
+      setDataTableRedSelectedInfo: "setDataTableRedSelectedInfo",
+      setDataTableBlueSelectedInfo: "setDataTableBlueSelectedInfo",
+    }),
+    ...mapActions("QuotientStore", {
+      setDataInfoAction: "setDataInfoAction",
+    }),
+    ...mapMutations("EchartsStore", {
+      setVisible: "setVisible",
+      setViewTitle: "setViewTitle",
+      setLegend: "setLegend",
+      setXAxis: "setXAxis",
+      setSeries: "setSeries",
+    }),
     //点击页码事件
     changePage(page, pageSize) {
       console.log(page, "当前页.......");
       console.log(pageSize, "每页大小.......");
       this.currentPage = page;
-      this.getData(page, pageSize);
+      this.setDataInfoAction({
+        pageQueryParam: page,
+        pageSizeQueryParam: pageSize,
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
     },
     //每页显示数量改变的事件
     changePageSize(current, pageSize) {
       console.log(current, "当前页.......");
       console.log(pageSize, "每页大小.......");
       this.currentPage = current;
-      this.getData(current, pageSize);
+      this.setDataInfoAction({
+        pageQueryParam: current,
+        pageSizeQueryParam: pageSize,
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
     },
     flashClick: function () {
-      this.getData(this.currentPage, this.dataInfo.pageSize);
+      this.setDataInfoAction({
+        pageQueryParam: this.currentPage,
+        pageSizeQueryParam: this.getDataInfoItemByKey("pageSize"),
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
     },
     redAnalysisClick: function (cell) {
       console.log("redAnalysisClick", cell);
-      var name = "红球号码" + cell;
-      this.visible = true;
-      this.viewTitle = name + "的冷热分析图";
-      var echartsData = [];
-      this.dataInfo.data.forEach((element) => {
-        var red = JSON.parse(element.redBall);
-        var IssueNumber = element.IssueNumber;
-        echartsData.push({
-          IssueNumber: IssueNumber,
-          value: Math.ceil(
-            red[cell - 1] / this.dataTableInfo.red[cell - 1].value
-          ),
-        });
-      });
-      echartsData.sort((a, b) => {
-        return a.IssueNumber - b.IssueNumber;
-      });
-      var legend = { data: [], selected: {} };
-      legend.selected[name] = true;
-      legend.data.push(name);
-      var xAxis = [];
-      var series = [
-        {
-          name: name,
-          type: "line",
-          smooth: true,
-          data: [],
-        },
-      ];
-
-      echartsData.forEach((element) => {
-        xAxis.push(element.IssueNumber);
-        series[0].data.push(element.value);
-      });
-
-      this.myEcharts(legend, xAxis, series);
+      var name = this.getDataTableRedInfoByIndex(cell - 1).name;
+      var key = this.getDataTableRedInfoByIndex(cell - 1).key;
+      this.setVisible(true);
+      this.setViewTitle(name + "的取商分析图");
+      this.setDataTableRedSelectedInfoByKey(key);
+      this.setDataTableBlueSelectedInfo(false);
+      var data = this.redAnalysisByIndex(cell);
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
     },
     blueAnalysisClick: function (cell) {
       console.log("blueAnalysisClick", cell);
-      var name = "蓝球号码" + cell;
-      this.visible = true;
-      this.viewTitle = name + "的冷热分析图";
-      var echartsData = [];
-      this.dataInfo.data.forEach((element) => {
-        var blue = JSON.parse(element.blueBall);
-        var IssueNumber = element.IssueNumber;
-        echartsData.push({
-          IssueNumber: IssueNumber,
-          value: Math.ceil(
-            blue[cell - 1] / this.dataTableInfo.blue[cell - 1].value
-          ),
-        });
-      });
-      echartsData.sort((a, b) => {
-        return a.IssueNumber - b.IssueNumber;
-      });
-      var legend = { data: [], selected: {} };
-      legend.selected[name] = true;
-      legend.data.push(name);
-      var xAxis = [];
-      var series = [
-        {
-          name: name,
-          type: "line",
-          smooth: true,
-          data: [],
-        },
-      ];
-
-      echartsData.forEach((element) => {
-        xAxis.push(element.IssueNumber);
-        series[0].data.push(element.value);
-      });
-
-      this.myEcharts(legend, xAxis, series);
+      var name = this.getDataTableBlueInfoByIndex(cell - 1).name;
+      var key = this.getDataTableBlueInfoByIndex(cell - 1).key;
+      this.setVisible(true);
+      this.setViewTitle(name + "的取商分析图");
+      this.setDataTableBlueSelectedInfoByKey(key);
+      this.setDataTableRedSelectedInfo(false);
+      var data = this.blueAnalysisByIndex(cell);
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
     },
     analysisRedClick: function () {
-      this.visible = true;
-      this.viewTitle = "红球数据分析图";
-      var echartsData = [];
-      this.dataInfo.data.forEach((element) => {
-        var red = JSON.parse(element.redBall);
-        var IssueNumber = element.IssueNumber;
-        echartsData.push({ IssueNumber: IssueNumber, red: red });
-      });
-      echartsData.sort((a, b) => {
-        return a.IssueNumber - b.IssueNumber;
-      });
-      var legend = { data: [], selected: {} };
-      var xAxis = [];
-      var series = [];
-
-      var redTempData = [];
-      echartsData.forEach((element) => {
-        xAxis.push(element.IssueNumber);
-        element.red.forEach((rv, i) => {
-          var value = Math.ceil(rv / this.dataTableInfo.red[i].value);
-          redTempData[i] instanceof Array
-            ? redTempData[i].push(value)
-            : (redTempData[i] = [value]);
-        });
-      });
-
-      redTempData.forEach((element, index) => {
-        var name = this.dataTableInfo.red[index].key.slice(3);
-        var temp = {
-          name: name,
-          type: "line",
-          smooth: true,
-          data: element,
-        };
-        legend.selected[name] = false;
-        legend.data.push(name);
-        series.push(temp);
-      });
-
-      this.myEcharts(legend, xAxis, series);
+      this.setVisible(true);
+      this.setViewTitle("红球数据取商分析图");
+      this.setDataTableRedSelectedInfo(true);
+      this.setDataTableBlueSelectedInfo(false);
+      var data = this.redAnalysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
     },
     analysisBlueClick: function () {
-      this.visible = true;
-      this.viewTitle = "蓝球数据分析图";
-      var echartsData = [];
-      this.dataInfo.data.forEach((element) => {
-        var blue = JSON.parse(element.blueBall);
-        var IssueNumber = element.IssueNumber;
-        echartsData.push({ IssueNumber: IssueNumber, blue: blue });
-      });
-      echartsData.sort((a, b) => {
-        return a.IssueNumber - b.IssueNumber;
-      });
-      var legend = { data: [], selected: {} };
-      var xAxis = [];
-      var series = [];
-
-      var blueTempData = [];
-      echartsData.forEach((element) => {
-        xAxis.push(element.IssueNumber);
-        element.blue.forEach((rv, i) => {
-          var value = Math.ceil(rv / this.dataTableInfo.blue[i].value);
-          blueTempData[i] instanceof Array
-            ? blueTempData[i].push(value)
-            : (blueTempData[i] = [value]);
-        });
-      });
-
-      blueTempData.forEach((element, index) => {
-        var name = this.dataTableInfo.blue[index].key.slice(4);
-        var temp = {
-          name: name,
-          type: "line",
-          smooth: true,
-          data: element,
-        };
-        legend.selected[name] = false;
-        legend.data.push(name);
-        series.push(temp);
-      });
-
-      this.myEcharts(legend, xAxis, series);
+      this.setVisible(true);
+      this.setViewTitle("蓝球数据取商分析图");
+      this.setDataTableBlueSelectedInfo(true);
+      this.setDataTableRedSelectedInfo(false);
+      var data = this.blueAnalysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
     },
     analysisClick: function () {
-      this.visible = true;
-      this.viewTitle = "全数据分析图";
-      var echartsData = [];
-      this.dataInfo.data.forEach((element) => {
-        var red = JSON.parse(element.redBall);
-        var blue = JSON.parse(element.blueBall);
-        var IssueNumber = element.IssueNumber;
-        echartsData.push({ IssueNumber: IssueNumber, red: red, blue: blue });
-      });
-      echartsData.sort((a, b) => {
-        return a.IssueNumber - b.IssueNumber;
-      });
-      var legend = { data: [], selected: {} };
-      var xAxis = [];
-      var series = [];
-
-      var redTempData = [];
-      var blueTempData = [];
-      echartsData.forEach((element) => {
-        xAxis.push(element.IssueNumber);
-        element.red.forEach((rv, i) => {
-          var value = Math.ceil(rv / this.dataTableInfo.red[i].value);
-          redTempData[i] instanceof Array
-            ? redTempData[i].push(value)
-            : (redTempData[i] = [value]);
-        });
-        element.blue.forEach((rv, i) => {
-          var value = Math.ceil(rv / this.dataTableInfo.blue[i].value);
-          blueTempData[i] instanceof Array
-            ? blueTempData[i].push(value)
-            : (blueTempData[i] = [value]);
-        });
-      });
-
-      redTempData.forEach((element, index) => {
-        var name = this.dataTableInfo.red[index].key;
-        var temp = {
-          name: name,
-          type: "line",
-          smooth: true,
-          data: element,
-        };
-        legend.selected[name] = false;
-        legend.data.push(name);
-        series.push(temp);
-      });
-
-      blueTempData.forEach((element, index) => {
-        var name = this.dataTableInfo.blue[index].key;
-        var temp = {
-          name: name,
-          type: "line",
-          smooth: true,
-          data: element,
-        };
-        legend.selected[name] = false;
-        legend.data.push(name);
-        series.push(temp);
-      });
-
-      this.myEcharts(legend, xAxis, series);
-    },
-    myEcharts(legend, xAxis, series) {
-      this.$nextTick(() => {
-        // 基于准备好的dom，初始化echarts实例
-        var myChart = echarts.init(document.getElementById("main"));
-
-        // 指定图表的配置项和数据
-        var option = {
-          legend: legend,
-          xAxis: {
-            data: xAxis,
-          },
-          yAxis: {},
-          series: series,
-          tooltip: {
-            trigger: "axis",
-            axisPointer: {
-              animation: false,
-            },
-          },
-          toolbox: {
-            feature: {
-              dataZoom: {
-                yAxisIndex: "none",
-              },
-              restore: {},
-              saveAsImage: {},
-            },
-          },
-          axisPointer: {
-            link: [
-              {
-                xAxisIndex: "all",
-              },
-            ],
-          },
-          dataZoom: [
-            {
-              show: true,
-              realtime: true,
-              start: 30,
-              end: 70,
-              xAxisIndex: [0, 1],
-            },
-            {
-              type: "inside",
-              realtime: true,
-              start: 30,
-              end: 70,
-              xAxisIndex: [0, 1],
-            },
-          ],
-          grid: [
-            {
-              left: 60,
-              right: 50,
-              height: "55%",
-            },
-            {
-              left: 60,
-              right: 50,
-              top: "55%",
-              height: "55%",
-            },
-          ],
-        };
-
-        // 使用刚指定的配置项和数据显示图表。
-        myChart.setOption(option);
-      });
-    },
-    onClose: function () {
-      this.visible = false;
+      this.setVisible(true);
+      this.setViewTitle("全数据取商分析图");
+      this.setDataTableBlueSelectedInfo(true);
+      this.setDataTableRedSelectedInfo(true);
+      var data = this.analysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
     },
   },
 };
@@ -587,10 +376,5 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
-}
-
-#main {
-  width: 100%;
-  height: 300px;
 }
 </style>

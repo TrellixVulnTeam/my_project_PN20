@@ -8,11 +8,48 @@ const QuotientStore = {
     dataTableInfo: { red: [], blue: [] },
   },
   mutations: {
+    resetState(state) {
+      state.dataInfo = {};
+      state.baseInfo = {};
+      state.dataTableInfo = { red: [], blue: [] };
+    },
     setDataInfo(state, payload) {
       state.dataInfo = payload;
     },
     setBaseInfo(state, payload) {
       state.baseInfo = payload;
+    },
+    addDataTableRedInfo(state, payload) {
+      state.dataTableInfo.red.push(payload);
+    },
+    addDataTableBlueInfo(state, payload) {
+      state.dataTableInfo.blue.push(payload);
+    },
+    setDataTableRedSelectedInfoByKey(state, payload) {
+      for (var i = 0; i < state.dataTableInfo.red.length; i++) {
+        state.dataTableInfo.red[i].selected = false;
+        if (state.dataTableInfo.red[i].key == payload) {
+          state.dataTableInfo.red[i].selected = true;
+        }
+      }
+    },
+    setDataTableBlueSelectedInfoByKey(state, payload) {
+      for (var i = 0; i < state.dataTableInfo.blue.length; i++) {
+        state.dataTableInfo.blue[i].selected = false;
+        if (state.dataTableInfo.blue[i].key == payload) {
+          state.dataTableInfo.blue[i].selected = true;
+        }
+      }
+    },
+    setDataTableRedSelectedInfo(state, payload) {
+      for (var i = 0; i < state.dataTableInfo.red.length; i++) {
+        state.dataTableInfo.red[i].selected = payload;
+      }
+    },
+    setDataTableBlueSelectedInfo(state, payload) {
+      for (var i = 0; i < state.dataTableInfo.blue.length; i++) {
+        state.dataTableInfo.blue[i].selected = payload;
+      }
     },
   },
   actions: {
@@ -61,7 +98,7 @@ const QuotientStore = {
     redAnalysisByIndex(state, getter) {
       return function (index) {
         if (getter.getDataInfoLength > 0) {
-          var name = "红球号码" + index;
+          var name = state.dataTableInfo.red[index - 1].name;
           var echartsData = [];
           state.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
@@ -125,7 +162,7 @@ const QuotientStore = {
           });
 
           redTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.red[index].key.slice(3);
+            var name = state.dataTableInfo.red[index].name;
             var temp = {
               name: name,
               type: "line",
@@ -143,7 +180,7 @@ const QuotientStore = {
     blueAnalysisByIndex(state, getter) {
       return function (index) {
         if (getter.getDataInfoLength > 0) {
-          var name = "蓝球号码" + index;
+          var name = state.dataTableInfo.blue[index - 1].name;
           var echartsData = [];
           state.dataInfo.data.forEach((element) => {
             var blue = JSON.parse(element.blueBall);
@@ -207,7 +244,7 @@ const QuotientStore = {
           });
 
           blueTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.blue[index].key.slice(4);
+            var name = state.dataTableInfo.blue[index].name;
             var temp = {
               name: name,
               type: "line",
@@ -262,7 +299,7 @@ const QuotientStore = {
           });
 
           redTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.red[index].key;
+            var name = state.dataTableInfo.red[index].name;
             var temp = {
               name: name,
               type: "line",
@@ -275,7 +312,7 @@ const QuotientStore = {
           });
 
           blueTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.blue[index].key;
+            var name = state.dataTableInfo.blue[index].name;
             var temp = {
               name: name,
               type: "line",
@@ -287,6 +324,32 @@ const QuotientStore = {
             series.push(temp);
           });
           return { legend: legend, xAxis: xAxis, series: series };
+        }
+      };
+    },
+    getDataTableRedInfoLength(state) {
+      return state.dataTableInfo.red.length;
+    },
+    getDataTableRedInfo(state) {
+      return state.dataTableInfo.red;
+    },
+    getDataTableRedInfoByIndex(state, getter) {
+      return function (index) {
+        if (getter.getDataTableRedInfoLength > 0) {
+          return state.dataTableInfo.red[index];
+        }
+      };
+    },
+    getDataTableBlueInfoLength(state) {
+      return state.dataTableInfo.blue.length;
+    },
+    getDataTableBlueInfo(state) {
+      return state.dataTableInfo.blue;
+    },
+    getDataTableBlueInfoByIndex(state, getter) {
+      return function (index) {
+        if (getter.getDataTableBlueInfoLength > 0) {
+          return state.dataTableInfo.blue[index];
         }
       };
     },

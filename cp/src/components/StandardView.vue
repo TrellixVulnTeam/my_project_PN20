@@ -8,44 +8,84 @@
     @close="onClose"
     height="400PX"
     ><div id="main"></div>
-    <a-input-number
-      id="inputNumber"
-      v-model="h_item.value"
-      size="small"
-      :min="1"
-      :max="Math.ceil(h_item.maxValue / 2)"
-  /></a-drawer>
+    <template v-for="item in dataTableInfo.red">
+      <a-input-number
+        v-if="item.selected == true"
+        :key="item.key"
+        v-model="item.value"
+        size="small"
+        :min="1"
+        :max="Math.ceil(item.maxValue / 2)"
+        @change="myEcharts"
+      />{{ item.name }}
+    </template>
+    <template v-for="cell in dataTableInfo.blue">
+      <a-input-number
+        v-if="cell.selected == true"
+        :key="cell.key"
+        v-model="cell.value"
+        size="small"
+        :min="1"
+        :max="Math.ceil(cell.maxValue / 2)"
+        @change="myEcharts"
+      />{{ cell.name }}
+    </template>
+  </a-drawer>
 </template>
 
 <script>
 import * as echarts from "echarts";
+import { mapMutations, mapGetters, mapState } from "vuex";
 
 export default {
   name: "StandardView",
-  props: {
-    dataInfo: {},
-    dataTableInfo: {},
-  },
   data: function () {
     return {
-      visible: false,
-      viewTitle: "",
+      myChart: null,
     };
   },
+  computed: {
+    ...mapGetters("EchartsStore", {}),
+    ...mapState("EchartsStore", {
+      visible: "visible",
+      viewTitle: "viewTitle",
+      legend: "legend",
+      xAxis: "xAxis",
+      series: "series",
+    }),
+    ...mapState("QuotientStore", {
+      dataTableInfo: "dataTableInfo",
+    }),
+  },
+  watch: {
+    visible(newVal) {
+      console.log(this.dataTableInfo);
+      if (newVal == true) {
+        this.myEcharts();
+      }
+    },
+  },
+  created: function () {
+    this.resetState();
+  },
   methods: {
-    myEcharts(legend, xAxis, series) {
+    ...mapMutations("EchartsStore", {
+      resetState: "resetState",
+      setVisible: "setVisible",
+    }),
+    myEcharts() {
       this.$nextTick(() => {
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById("main"));
 
         // 指定图表的配置项和数据
         var option = {
-          legend: legend,
+          legend: this.legend,
           xAxis: {
-            data: xAxis,
+            data: this.xAxis,
           },
           yAxis: {},
-          series: series,
+          series: this.series,
           tooltip: {
             trigger: "axis",
             axisPointer: {
@@ -103,14 +143,16 @@ export default {
         myChart.setOption(option);
       });
     },
-    onShow: function () {
-      this.visible = true;
-    },
     onClose: function () {
-      this.visible = false;
+      this.setVisible(false);
     },
   },
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+#main {
+  width: 100%;
+  height: 300px;
+}
+</style>
