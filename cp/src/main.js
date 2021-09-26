@@ -21,6 +21,10 @@ import {
   Collapse,
   Drawer,
   InputNumber,
+  Row,
+  Col,
+  Divider,
+  Affix,
 } from "ant-design-vue";
 Vue.use(Layout)
   .use(Icon)
@@ -35,6 +39,10 @@ Vue.use(Layout)
   .use(Collapse)
   .use(Drawer)
   .use(InputNumber)
+  .use(Row)
+  .use(Col)
+  .use(Divider)
+  .use(Affix)
   .use(Pagination);
 
 Vue.config.productionTip = false;

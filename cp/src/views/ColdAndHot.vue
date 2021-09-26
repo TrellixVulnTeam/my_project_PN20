@@ -1,22 +1,31 @@
 <template>
   <div class="ColdAndHot">
-    <DataView></DataView>
+    <DataComponent></DataComponent>
+    <ViewComponent></ViewComponent>
   </div>
 </template>
 
 <script>
-import DataView from "@/components/FullData.vue";
+import DataComponent from "@/components/ColdAndHotData.vue";
+import ViewComponent from "@/components/StandardView.vue";
+import { mapMutations } from "vuex";
 
 export default {
   name: "ColdAndHot",
-  components: { DataView },
+  components: { DataComponent, ViewComponent },
   inject: ["reload"],
   data: function () {
     return {};
   },
-  created: function () {},
+  created: function () {
+    this.setAscription("ColdAndHotStore");
+  },
   watch: {},
-  methods: {},
+  methods: {
+    ...mapMutations("EchartsStore", {
+      setAscription: "setAscription",
+    }),
+  },
 };
 </script>
 

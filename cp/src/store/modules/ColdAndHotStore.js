@@ -1,6 +1,6 @@
 import { requestUrl, request } from "@/utils/Http.js";
 
-const SummaryStore = {
+const ColdAndHotStore = {
   namespaced: true,
   state: {
     dataInfo: {},
@@ -352,4 +352,4 @@ const SummaryStore = {
   },
 };
 
-export default SummaryStore;
+export default ColdAndHotStore;

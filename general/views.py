@@ -1,14 +1,11 @@
 
-from utils.rendererresponse import customrenderer
 from general.serializers import GeneralProgrammeSerializers, CategorySerializers, LotteryStageSerializers, ForecastSerializers, ColdAndHotSerializers, KillNumberSerializers
 from general.models import GeneralProgramme, Category, LotteryStage, Forecast, ColdAndHot, KillNumber
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import serializers, status
+from rest_framework import status
 from collections import OrderedDict
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import permissions
 from general.utils import geturl
 from lxml import etree
 import json
@@ -358,7 +355,7 @@ class KillNumberViewSet(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         LotteryStages = navList.LotteryStages.all().order_by(
-            '-IssueNumber')
+            'IssueNumber')
 
         if LotteryStages.count() <= 1:
             return Response('数据数量'+str(LotteryStages.count())+'太少，不足已计算出杀号分析表')
@@ -391,12 +388,20 @@ class KillNumberViewSet(APIView):
                 paramArr = []
                 for param in killNumberParam:
                     val = 0
-                    if param.find('rl') != -1:
+                    if param.find('rll') != -1:
+                        if index-2 >= 0:
+                            val = json.loads(
+                                LotteryStages[index-2].redBall)[int(param[3:])-1]
+                    elif param.find('rl') != -1:
                         if index-1 >= 0:
                             val = json.loads(
                                 LotteryStages[index-1].redBall)[int(param[2:])-1]
                     elif param.find('r') != -1:
                         val = json.loads(lottery.redBall)[int(param[1:])-1]
+                    elif param.find('bll') != -1:
+                        if index-2 >= 0:
+                            val = json.loads(
+                                LotteryStages[index-2].blueBall)[int(param[3:])-1]
                     elif param.find('bl') != -1:
                         if index-1 >= 0:
                             val = json.loads(

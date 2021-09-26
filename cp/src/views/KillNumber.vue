@@ -1,24 +1,34 @@
 <template>
   <div class="KillNumber">
-    <DataView></DataView>
+    <DataComponent></DataComponent>
+    <ViewComponent></ViewComponent>
   </div>
 </template>
 
 <script>
-import DataView from "@/components/KillNumberData.vue";
+import DataComponent from "@/components/KillNumberData.vue";
+import ViewComponent from "@/components/StandardView.vue";
+import { mapMutations } from "vuex";
 
 export default {
   name: "KillNumber",
   components: {
-    DataView,
+    DataComponent,
+    ViewComponent,
   },
   inject: ["reload"],
   data: function () {
     return {};
   },
-  created: function () {},
+  created: function () {
+    this.setAscription("KillNumberStore");
+  },
   watch: {},
-  methods: {},
+  methods: {
+    ...mapMutations("EchartsStore", {
+      setAscription: "setAscription",
+    }),
+  },
 };
 </script>
 

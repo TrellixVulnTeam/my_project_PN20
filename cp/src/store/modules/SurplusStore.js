@@ -1,6 +1,6 @@
 import { requestUrl, request } from "@/utils/Http.js";
 
-const SummaryStore = {
+const SurplusStore = {
   namespaced: true,
   state: {
     dataInfo: {},
@@ -105,7 +105,7 @@ const SummaryStore = {
             var IssueNumber = element.IssueNumber;
             echartsData.push({
               IssueNumber: IssueNumber,
-              value: red[index - 1],
+              value: red[index - 1] % state.dataTableInfo.red[index - 1].value,
             });
           });
           echartsData.sort((a, b) => {
@@ -152,7 +152,7 @@ const SummaryStore = {
           echartsData.forEach((element) => {
             xAxis.push(element.IssueNumber);
             element.red.forEach((rv, i) => {
-              var value = rv;
+              var value = rv % state.dataTableInfo.red[i].value;
               redTempData[i] instanceof Array
                 ? redTempData[i].push(value)
                 : (redTempData[i] = [value]);
@@ -185,7 +185,8 @@ const SummaryStore = {
             var IssueNumber = element.IssueNumber;
             echartsData.push({
               IssueNumber: IssueNumber,
-              value: blue[index - 1],
+              value:
+                blue[index - 1] % state.dataTableInfo.blue[index - 1].value,
             });
           });
           echartsData.sort((a, b) => {
@@ -232,7 +233,7 @@ const SummaryStore = {
           echartsData.forEach((element) => {
             xAxis.push(element.IssueNumber);
             element.blue.forEach((rv, i) => {
-              var value = rv;
+              var value = rv % state.dataTableInfo.blue[i].value;
               blueTempData[i] instanceof Array
                 ? blueTempData[i].push(value)
                 : (blueTempData[i] = [value]);
@@ -281,13 +282,13 @@ const SummaryStore = {
           echartsData.forEach((element) => {
             xAxis.push(element.IssueNumber);
             element.red.forEach((rv, i) => {
-              var value = rv;
+              var value = rv % state.dataTableInfo.red[i].value;
               redTempData[i] instanceof Array
                 ? redTempData[i].push(value)
                 : (redTempData[i] = [value]);
             });
             element.blue.forEach((rv, i) => {
-              var value = rv;
+              var value = rv % state.dataTableInfo.blue[i].value;
               blueTempData[i] instanceof Array
                 ? blueTempData[i].push(value)
                 : (blueTempData[i] = [value]);
@@ -352,4 +353,4 @@ const SummaryStore = {
   },
 };
 
-export default SummaryStore;
+export default SurplusStore;

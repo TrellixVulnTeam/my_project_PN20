@@ -1,24 +1,34 @@
 <template>
   <div class="Summary">
-    <DataView></DataView>
+    <DataComponent></DataComponent>
+    <ViewComponent></ViewComponent>
   </div>
 </template>
 
 <script>
-import DataView from "@/components/SummaryData.vue";
+import DataComponent from "@/components/SummaryData.vue";
+import ViewComponent from "@/components/StandardView.vue";
+import { mapMutations } from "vuex";
 
 export default {
   name: "Summary",
   components: {
-    DataView,
+    DataComponent,
+    ViewComponent,
   },
   inject: ["reload"],
   data: function () {
     return {};
   },
-  created: function () {},
+  created: function () {
+    this.setAscription("SummaryStore");
+  },
   watch: {},
-  methods: {},
+  methods: {
+    ...mapMutations("EchartsStore", {
+      setAscription: "setAscription",
+    }),
+  },
 };
 </script>
 

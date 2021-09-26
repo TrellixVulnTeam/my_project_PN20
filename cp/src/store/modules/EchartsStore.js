@@ -6,6 +6,7 @@ const EchartsStore = {
     legend: {},
     xAxis: [],
     series: [],
+    ascription: "",
   },
   mutations: {
     resetState(state) {
@@ -30,9 +31,22 @@ const EchartsStore = {
     setSeries(state, payload) {
       state.series = payload;
     },
+    setAscription(state, payload) {
+      state.ascription = payload;
+    },
   },
   actions: {},
-  getters: {},
+  getters: {
+    getDataTableInfo(state, getter, rootState) {
+      return rootState[state.ascription].dataTableInfo;
+    },
+    redAnalysisByIndex(state, getter, rootState, rootGetters) {
+      return rootGetters[state.ascription + "/redAnalysisByIndex"];
+    },
+    blueAnalysisByIndex(state, getter, rootState, rootGetters) {
+      return rootGetters[state.ascription + "/blueAnalysisByIndex"];
+    },
+  },
 };
 
 export default EchartsStore;

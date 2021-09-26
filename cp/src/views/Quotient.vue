@@ -8,6 +8,7 @@
 <script>
 import DataComponent from "@/components/QuotientData.vue";
 import ViewComponent from "@/components/StandardView.vue";
+import { mapMutations } from "vuex";
 
 export default {
   name: "Quotient",
@@ -19,9 +20,15 @@ export default {
   data: function () {
     return {};
   },
-  created: function () {},
+  created: function () {
+    this.setAscription("QuotientStore");
+  },
   watch: {},
-  methods: {},
+  methods: {
+    ...mapMutations("EchartsStore", {
+      setAscription: "setAscription",
+    }),
+  },
 };
 </script>
 

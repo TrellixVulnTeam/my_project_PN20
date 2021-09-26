@@ -1,12 +1,12 @@
 <template>
-  <div class="QuotientData">
+  <div class="ColdAndHotData">
     <a-table
       :columns="columns"
       :data-source="dataInfo.data"
-      :scroll="{ x: 'calc(30%)', y: 450 }"
+      :scroll="{ x: 'calc(50%)', y: 450 }"
       :pagination="pagination"
-      size="small"
       bordered
+      size="small"
       :rowKey="
         (record, index) => {
           return index;
@@ -37,41 +37,25 @@
       </a-button>
 
       <template v-for="h_item in dataTableInfo.red" :slot="h_item.key">
-        <div :key="h_item.key">
-          <a-button
-            type="link"
-            size="small"
-            @click="redAnalysisClick(h_item.index)"
-          >
-            {{ h_item.index }}
-          </a-button>
-          <a-input-number
-            id="inputNumber"
-            v-model="h_item.value"
-            size="small"
-            :min="1"
-            :max="Math.ceil(h_item.maxValue / 2)"
-          />
-        </div>
+        <a-button
+          :key="h_item.key"
+          type="link"
+          size="small"
+          @click="redAnalysisClick(h_item.index)"
+        >
+          {{ h_item.index }}
+        </a-button>
       </template>
 
       <template v-for="h_cell in dataTableInfo.blue" :slot="h_cell.key">
-        <div :key="h_cell.key">
-          <a-button
-            type="link"
-            size="small"
-            @click="blueAnalysisClick(h_cell.index)"
-          >
-            {{ h_cell.index }}
-          </a-button>
-          <a-input-number
-            id="inputNumber"
-            v-model="h_cell.value"
-            size="small"
-            :min="1"
-            :max="Math.ceil(h_cell.maxValue / 2)"
-          />
-        </div>
+        <a-button
+          :key="h_cell.key"
+          type="link"
+          size="small"
+          @click="blueAnalysisClick(h_cell.index)"
+        >
+          {{ h_cell.index }}
+        </a-button>
       </template>
 
       <template
@@ -79,9 +63,7 @@
         :slot="item.key"
         slot-scope="text, record"
       >
-        <span :key="item.key">{{
-          Math.ceil(JSON.parse(record.redBall)[i] / item.value)
-        }}</span>
+        <span :key="item.key">{{ JSON.parse(record.redBall)[i] }}</span>
       </template>
 
       <template
@@ -89,9 +71,7 @@
         :slot="cell.key"
         slot-scope="text, record"
       >
-        <span :key="cell.key">{{
-          Math.ceil(JSON.parse(record.blueBall)[j] / cell.value)
-        }}</span>
+        <span :key="cell.key">{{ JSON.parse(record.blueBall)[j] }}</span>
       </template>
 
       <template slot="title">
@@ -107,7 +87,7 @@
 import { mapMutations, mapActions, mapGetters, mapState } from "vuex";
 
 export default {
-  name: "QuotientData",
+  name: "ColdAndHotData",
   components: {},
   inject: ["reload"],
   data: function () {
@@ -129,10 +109,28 @@ export default {
       currentPage: 1,
     };
   },
+  computed: {
+    ...mapGetters("ColdAndHotStore", {
+      getDataInfoItemByKey: "getDataInfoItemByKey",
+      redAnalysisByIndex: "redAnalysisByIndex",
+      redAnalysis: "redAnalysis",
+      blueAnalysisByIndex: "blueAnalysisByIndex",
+      blueAnalysis: "blueAnalysis",
+      analysis: "analysis",
+      getDataTableRedInfoByIndex: "getDataTableRedInfoByIndex",
+      getDataTableBlueInfoByIndex: "getDataTableBlueInfoByIndex",
+    }),
+    ...mapState("ColdAndHotStore", {
+      dataInfo: "dataInfo",
+      baseInfo: "baseInfo",
+      dataTableInfo: "dataTableInfo",
+    }),
+  },
   created: function () {
     this.resetState();
     this.setBaseInfo(this.$route.query);
-    var idWidth = 50;
+    var ColdAndHotData = this;
+    var idWidth = 60;
     var IssueNumberWidth = 80;
     var dataWidth = 50;
 
@@ -142,6 +140,7 @@ export default {
         width: idWidth,
         key: "序号",
         align: "center",
+        fixed: "left",
         //使用插槽
         scopedSlots: { customRender: "id" },
       },
@@ -151,19 +150,16 @@ export default {
         dataIndex: "IssueNumber",
         key: "期号",
         align: "center",
+        fixed: "left",
       },
     ];
-    var redBallNum = this.baseInfo.rule
-      ? this.baseInfo.rule.redBallNum
-        ? this.baseInfo.rule.redBallNum
-        : 5
-      : 5;
-    var objRed = {
-      slots: { title: "redBalls" },
-      align: "center",
-      children: [],
-    };
-    for (var i = 1; i < redBallNum + 1; i++) {
+    var redBallMaxValue = this.baseInfo.rule
+      ? this.baseInfo.rule.redBallMaxValue
+        ? this.baseInfo.rule.redBallMaxValue
+        : 35
+      : 35;
+    var objRed = { slots: { title: "redBalls" }, children: [] };
+    for (var i = 1; i < redBallMaxValue + 1; i++) {
       var redKey = "red" + i;
       var subObjRed = {
         key: redKey,
@@ -171,8 +167,10 @@ export default {
         slots: { title: redKey },
         scopedSlots: { customRender: redKey },
         align: "center",
+        customCell: function (record) {
+          return ColdAndHotData.renderRedCell(record, this.key);
+        },
       };
-      objRed.children.push(subObjRed);
       var redInfo = {
         name: "红球" + i,
         index: i,
@@ -186,20 +184,17 @@ export default {
           : 35,
       };
       this.addDataTableRedInfo(redInfo);
+      objRed.children.push(subObjRed);
     }
     this.columns.push(objRed);
 
-    var blueBallNum = this.baseInfo.rule
-      ? this.baseInfo.rule.blueBallNum
-        ? this.baseInfo.rule.blueBallNum
-        : 2
-      : 2;
-    var objBlue = {
-      slots: { title: "blueBalls" },
-      align: "center",
-      children: [],
-    };
-    for (var j = 1; j < blueBallNum + 1; j++) {
+    var blueBallMaxValue = this.baseInfo.rule
+      ? this.baseInfo.rule.blueBallMaxValue
+        ? this.baseInfo.rule.blueBallMaxValue
+        : 12
+      : 12;
+    var objBlue = { slots: { title: "blueBalls" }, children: [] };
+    for (var j = 1; j < blueBallMaxValue + 1; j++) {
       var blueKey = "blue" + j;
       var subObjBlue = {
         key: blueKey,
@@ -207,8 +202,10 @@ export default {
         slots: { title: blueKey },
         scopedSlots: { customRender: blueKey },
         align: "center",
+        customCell: function (record) {
+          return ColdAndHotData.renderBlueCell(record, this.key);
+        },
       };
-      objBlue.children.push(subObjBlue);
       var blueInfo = {
         name: "蓝球" + j,
         index: j,
@@ -222,6 +219,7 @@ export default {
           : 16,
       };
       this.addDataTableBlueInfo(blueInfo);
+      objBlue.children.push(subObjBlue);
     }
     this.columns.push(objBlue);
 
@@ -237,25 +235,8 @@ export default {
     },
     "$route.path": function () {},
   },
-  computed: {
-    ...mapGetters("QuotientStore", {
-      getDataInfoItemByKey: "getDataInfoItemByKey",
-      redAnalysisByIndex: "redAnalysisByIndex",
-      redAnalysis: "redAnalysis",
-      blueAnalysisByIndex: "blueAnalysisByIndex",
-      blueAnalysis: "blueAnalysis",
-      analysis: "analysis",
-      getDataTableRedInfoByIndex: "getDataTableRedInfoByIndex",
-      getDataTableBlueInfoByIndex: "getDataTableBlueInfoByIndex",
-    }),
-    ...mapState("QuotientStore", {
-      dataInfo: "dataInfo",
-      baseInfo: "baseInfo",
-      dataTableInfo: "dataTableInfo",
-    }),
-  },
   methods: {
-    ...mapMutations("QuotientStore", {
+    ...mapMutations("ColdAndHotStore", {
       addDataTableRedInfo: "addDataTableRedInfo",
       addDataTableBlueInfo: "addDataTableBlueInfo",
       setBaseInfo: "setBaseInfo",
@@ -265,7 +246,7 @@ export default {
       setDataTableRedSelectedInfo: "setDataTableRedSelectedInfo",
       setDataTableBlueSelectedInfo: "setDataTableBlueSelectedInfo",
     }),
-    ...mapActions("QuotientStore", {
+    ...mapActions("ColdAndHotStore", {
       setDataInfoAction: "setDataInfoAction",
     }),
     ...mapMutations("EchartsStore", {
@@ -313,11 +294,8 @@ export default {
     redAnalysisClick: function (cell) {
       console.log("redAnalysisClick", cell);
       var name = this.getDataTableRedInfoByIndex(cell - 1).name;
-      var key = this.getDataTableRedInfoByIndex(cell - 1).key;
       this.setVisible(true);
-      this.setViewTitle(name + "的取商分析图");
-      this.setDataTableRedSelectedInfoByKey(key);
-      this.setDataTableBlueSelectedInfo(false);
+      this.setViewTitle(name + "的冷热分析图");
       var data = this.redAnalysisByIndex(cell);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
@@ -326,21 +304,24 @@ export default {
     blueAnalysisClick: function (cell) {
       console.log("blueAnalysisClick", cell);
       var name = this.getDataTableBlueInfoByIndex(cell - 1).name;
-      var key = this.getDataTableBlueInfoByIndex(cell - 1).key;
       this.setVisible(true);
-      this.setViewTitle(name + "的取商分析图");
-      this.setDataTableBlueSelectedInfoByKey(key);
-      this.setDataTableRedSelectedInfo(false);
+      this.setViewTitle(name + "的冷热分析图");
       var data = this.blueAnalysisByIndex(cell);
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    analysisClick: function () {
+      this.setVisible(true);
+      this.setViewTitle("全数据冷热分析图");
+      var data = this.analysis();
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
       this.setSeries(data.series);
     },
     analysisRedClick: function () {
       this.setVisible(true);
-      this.setViewTitle("红球数据取商分析图");
-      this.setDataTableRedSelectedInfo(true);
-      this.setDataTableBlueSelectedInfo(false);
+      this.setViewTitle("红球数据冷热分析图");
       var data = this.redAnalysis();
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
@@ -348,30 +329,78 @@ export default {
     },
     analysisBlueClick: function () {
       this.setVisible(true);
-      this.setViewTitle("蓝球数据取商分析图");
-      this.setDataTableBlueSelectedInfo(true);
-      this.setDataTableRedSelectedInfo(false);
+      this.setViewTitle("蓝球数据冷热分析图");
       var data = this.blueAnalysis();
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
       this.setSeries(data.series);
     },
-    analysisClick: function () {
-      this.setVisible(true);
-      this.setViewTitle("全数据取商分析图");
-      this.setDataTableBlueSelectedInfo(true);
-      this.setDataTableRedSelectedInfo(true);
-      var data = this.analysis();
-      this.setLegend(data.legend);
-      this.setXAxis(data.xAxis);
-      this.setSeries(data.series);
+    renderRedCell: function (record, key) {
+      var redBall = JSON.parse(record.redBall);
+      var index = parseInt(key.slice(3)) - 1;
+      var red = redBall[index];
+      if (red == 1) {
+        return {
+          // 这个style就是我自定义的属性，也就是官方文档中的props
+          style: {
+            // 行背景色
+            "background-color": "#FF0000",
+          },
+        };
+      } else if (red == 0) {
+        return {
+          // 这个style就是我自定义的属性，也就是官方文档中的props
+          style: {
+            // 行背景色
+            "background-color": "#FFD700",
+          },
+        };
+      } else {
+        return {
+          // 这个style就是我自定义的属性，也就是官方文档中的props
+          style: {
+            // 行背景色
+            "background-color": "#228B22",
+          },
+        };
+      }
+    },
+    renderBlueCell: function (record, key) {
+      var blueBall = JSON.parse(record.blueBall);
+      var index = parseInt(key.slice(4)) - 1;
+      var blue = blueBall[index];
+      if (blue == 1) {
+        return {
+          // 这个style就是我自定义的属性，也就是官方文档中的props
+          style: {
+            // 行背景色
+            "background-color": "#FF0000",
+          },
+        };
+      } else if (blue == 0) {
+        return {
+          // 这个style就是我自定义的属性，也就是官方文档中的props
+          style: {
+            // 行背景色
+            "background-color": "#FFD700",
+          },
+        };
+      } else {
+        return {
+          // 这个style就是我自定义的属性，也就是官方文档中的props
+          style: {
+            // 行背景色
+            "background-color": "#228B22",
+          },
+        };
+      }
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.QuotientData {
+.ColdAndHotData {
   width: 100%;
   height: 100%;
   overflow: auto;

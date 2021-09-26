@@ -1,6 +1,6 @@
 import { requestUrl, request } from "@/utils/Http.js";
 
-const SummaryStore = {
+const KillNumberStore = {
   namespaced: true,
   state: {
     dataInfo: {},
@@ -98,15 +98,20 @@ const SummaryStore = {
     redAnalysisByIndex(state, getter) {
       return function (index) {
         if (getter.getDataInfoLength > 0) {
-          var name = state.dataTableInfo.red[index - 1].name;
+          var name = state.dataTableInfo.red[index - 1].name.slice(1);
           var echartsData = [];
           state.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
             var IssueNumber = element.IssueNumber;
-            echartsData.push({
-              IssueNumber: IssueNumber,
-              value: red[index - 1],
-            });
+            var rowValues = JSON.parse(element.lotteryStage_redBall);
+            var echartsVal = 0;
+            for (var value of rowValues) {
+              if (red[index - 1] == value) {
+                echartsVal = 1;
+                break;
+              }
+            }
+            echartsData.push({ IssueNumber: IssueNumber, value: echartsVal });
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -136,10 +141,15 @@ const SummaryStore = {
       return function () {
         if (getter.getDataInfoLength > 0) {
           var echartsData = [];
-          state.dataInfo.data.forEach((element) => {
+          this.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
+            var lotteryStage_redBall = JSON.parse(element.lotteryStage_redBall);
             var IssueNumber = element.IssueNumber;
-            echartsData.push({ IssueNumber: IssueNumber, red: red });
+            echartsData.push({
+              IssueNumber: IssueNumber,
+              red: red,
+              lotteryStage_redBall: lotteryStage_redBall,
+            });
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -152,15 +162,22 @@ const SummaryStore = {
           echartsData.forEach((element) => {
             xAxis.push(element.IssueNumber);
             element.red.forEach((rv, i) => {
-              var value = rv;
+              var echartsVal = 0;
+              for (var value of element.lotteryStage_redBall) {
+                if (rv == value) {
+                  echartsVal = 1;
+                  break;
+                }
+              }
+
               redTempData[i] instanceof Array
-                ? redTempData[i].push(value)
-                : (redTempData[i] = [value]);
+                ? redTempData[i].push(echartsVal)
+                : (redTempData[i] = [echartsVal]);
             });
           });
 
           redTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.red[index].name;
+            var name = state.dataTableInfo.red[index].name.slice(1);
             var temp = {
               name: name,
               type: "line",
@@ -178,15 +195,20 @@ const SummaryStore = {
     blueAnalysisByIndex(state, getter) {
       return function (index) {
         if (getter.getDataInfoLength > 0) {
-          var name = state.dataTableInfo.blue[index - 1].name;
+          var name = state.dataTableInfo.blue[index - 1].name.slice(1);
           var echartsData = [];
-          state.dataInfo.data.forEach((element) => {
+          this.dataInfo.data.forEach((element) => {
             var blue = JSON.parse(element.blueBall);
             var IssueNumber = element.IssueNumber;
-            echartsData.push({
-              IssueNumber: IssueNumber,
-              value: blue[index - 1],
-            });
+            var rowValues = JSON.parse(element.lotteryStage_blueBall);
+            var echartsVal = 0;
+            for (var value of rowValues) {
+              if (blue[index - 1] == value) {
+                echartsVal = 1;
+                break;
+              }
+            }
+            echartsData.push({ IssueNumber: IssueNumber, value: echartsVal });
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -216,10 +238,17 @@ const SummaryStore = {
       return function () {
         if (getter.getDataInfoLength > 0) {
           var echartsData = [];
-          state.dataInfo.data.forEach((element) => {
+          this.dataInfo.data.forEach((element) => {
             var blue = JSON.parse(element.blueBall);
+            var lotteryStage_blueBall = JSON.parse(
+              element.lotteryStage_blueBall
+            );
             var IssueNumber = element.IssueNumber;
-            echartsData.push({ IssueNumber: IssueNumber, blue: blue });
+            echartsData.push({
+              IssueNumber: IssueNumber,
+              blue: blue,
+              lotteryStage_blueBall: lotteryStage_blueBall,
+            });
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -232,15 +261,22 @@ const SummaryStore = {
           echartsData.forEach((element) => {
             xAxis.push(element.IssueNumber);
             element.blue.forEach((rv, i) => {
-              var value = rv;
+              var echartsVal = 0;
+              for (var value of element.lotteryStage_blueBall) {
+                if (rv == value) {
+                  echartsVal = 1;
+                  break;
+                }
+              }
+
               blueTempData[i] instanceof Array
-                ? blueTempData[i].push(value)
-                : (blueTempData[i] = [value]);
+                ? blueTempData[i].push(echartsVal)
+                : (blueTempData[i] = [echartsVal]);
             });
           });
 
           blueTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.blue[index].name;
+            var name = state.dataTableInfo.blue[index].name.slice(1);
             var temp = {
               name: name,
               type: "line",
@@ -259,14 +295,20 @@ const SummaryStore = {
       return function () {
         if (getter.getDataInfoLength > 0) {
           var echartsData = [];
-          state.dataInfo.data.forEach((element) => {
+          this.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
+            var lotteryStage_redBall = JSON.parse(element.lotteryStage_redBall);
             var blue = JSON.parse(element.blueBall);
+            var lotteryStage_blueBall = JSON.parse(
+              element.lotteryStage_blueBall
+            );
             var IssueNumber = element.IssueNumber;
             echartsData.push({
               IssueNumber: IssueNumber,
               red: red,
               blue: blue,
+              lotteryStage_redBall: lotteryStage_redBall,
+              lotteryStage_blueBall: lotteryStage_blueBall,
             });
           });
           echartsData.sort((a, b) => {
@@ -281,21 +323,35 @@ const SummaryStore = {
           echartsData.forEach((element) => {
             xAxis.push(element.IssueNumber);
             element.red.forEach((rv, i) => {
-              var value = rv;
+              var echartsVal = 0;
+              for (var value of element.lotteryStage_redBall) {
+                if (rv == value) {
+                  echartsVal = 1;
+                  break;
+                }
+              }
+
               redTempData[i] instanceof Array
-                ? redTempData[i].push(value)
-                : (redTempData[i] = [value]);
+                ? redTempData[i].push(echartsVal)
+                : (redTempData[i] = [echartsVal]);
             });
             element.blue.forEach((rv, i) => {
-              var value = rv;
+              var echartsVal = 0;
+              for (var value of element.lotteryStage_blueBall) {
+                if (rv == value) {
+                  echartsVal = 1;
+                  break;
+                }
+              }
+
               blueTempData[i] instanceof Array
-                ? blueTempData[i].push(value)
-                : (blueTempData[i] = [value]);
+                ? blueTempData[i].push(echartsVal)
+                : (blueTempData[i] = [echartsVal]);
             });
           });
 
           redTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.red[index].name;
+            var name = state.dataTableInfo.red[index].name.slice(0);
             var temp = {
               name: name,
               type: "line",
@@ -308,7 +364,7 @@ const SummaryStore = {
           });
 
           blueTempData.forEach((element, index) => {
-            var name = state.dataTableInfo.blue[index].name;
+            var name = state.dataTableInfo.blue[index].name.slice(0);
             var temp = {
               name: name,
               type: "line",
@@ -352,4 +408,4 @@ const SummaryStore = {
   },
 };
 
-export default SummaryStore;
+export default KillNumberStore;
