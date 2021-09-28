@@ -211,36 +211,37 @@ class ForecastViewSet(APIView):
             '-IssueNumber')
 
         Rule = navList.Rule
-        red_feature_names = []
-        blue_feature_names = []
+        feature_names = []
 
         for j in range(0, int(Rule.redBallNum)):
-            red_feature_names.append('red'+str(j+1))
+            feature_names.append('red'+str(j+1))
 
         for j in range(0, int(Rule.blueBallNum)):
-            blue_feature_names.append('blue'+str(j+1))
+            feature_names.append('blue'+str(j+1))
 
         index = []
-        redBall = []
-        blueBall = []
+        balls = []
 
         for lottery in LotteryStages:
             index.append(lottery.IssueNumber)
-            redBall.append(json.loads(lottery.redBall))
-            blueBall.append(json.loads(lottery.blueBall))
+            balls.append(json.loads(lottery.redBall) +
+                         json.loads(lottery.blueBall))
 
-        red_df = pd.DataFrame(redBall, index=index, columns=red_feature_names)
+        df = pd.DataFrame(balls, index=index, columns=feature_names)
 
-        X_train, X_test = train_test_split(red_df, test_size=0.3)
+        print(df.describe())
 
-        knn = KNeighborsClassifier()
-        knn.fit(X_train)
-        result = knn.predict(X_test)
-        print('测试数据的结果：', result[-10:-1])
+        # X_train, X_test, Y_train, Y_test = train_test_split(
+        #     red_df, test_size=0.3)
 
-        score = knn.score(X_test)  # 计算成功率
-        print('测试数据评估score ：', score)
-        return Response(red_df)
+        # knn = KNeighborsClassifier()
+        # knn.fit(X_train, Y_train)
+        # result = knn.predict(X_test)
+        # print('测试数据的结果：', result[-10:-1])
+
+        # score = knn.score(X_test)  # 计算成功率
+        # print('测试数据评估score ：', score)
+        return Response(df.describe())
 
 
 class ColdAndHotViewSet(APIView):
