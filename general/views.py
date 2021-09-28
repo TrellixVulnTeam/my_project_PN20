@@ -1,4 +1,4 @@
-
+from rest_framework.serializers import Serializer
 from general.serializers import GeneralProgrammeSerializers, CategorySerializers, LotteryStageSerializers, ForecastSerializers, ColdAndHotSerializers, KillNumberSerializers
 from general.models import GeneralProgramme, Category, LotteryStage, Forecast, ColdAndHot, KillNumber
 from rest_framework.views import APIView
@@ -10,6 +10,9 @@ from general.utils import geturl
 from lxml import etree
 import json
 import math
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
 
 # Create your views here.
 
@@ -197,6 +200,48 @@ class ForecastViewSet(APIView):
         serializer = ForecastSerializers(Forecasts, many=True)
         return Response(serializer.data)
 
+    def post(self, request, *args, **kwargs):
+        try:
+            navList = GeneralProgramme.objects.get(
+                ascriptionType__id=kwargs['ascriptionType'])
+        except GeneralProgramme.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        LotteryStages = navList.LotteryStages.all().order_by(
+            '-IssueNumber')
+
+        Rule = navList.Rule
+        red_feature_names = []
+        blue_feature_names = []
+
+        for j in range(0, int(Rule.redBallNum)):
+            red_feature_names.append('red'+str(j+1))
+
+        for j in range(0, int(Rule.blueBallNum)):
+            blue_feature_names.append('blue'+str(j+1))
+
+        index = []
+        redBall = []
+        blueBall = []
+
+        for lottery in LotteryStages:
+            index.append(lottery.IssueNumber)
+            redBall.append(json.loads(lottery.redBall))
+            blueBall.append(json.loads(lottery.blueBall))
+
+        red_df = pd.DataFrame(redBall, index=index, columns=red_feature_names)
+
+        X_train, X_test = train_test_split(red_df, test_size=0.3)
+
+        knn = KNeighborsClassifier()
+        knn.fit(X_train)
+        result = knn.predict(X_test)
+        print('测试数据的结果：', result[-10:-1])
+
+        score = knn.score(X_test)  # 计算成功率
+        print('测试数据评估score ：', score)
+        return Response(red_df)
+
 
 class ColdAndHotViewSet(APIView):
     def get(self, request, *args, **kwargs):
@@ -377,7 +422,9 @@ class KillNumberViewSet(APIView):
 
             killNumber.IssueNumber = lottery.IssueNumber
             killNumber.ascription = lottery.ascription
-            killNumber.lotteryStage = lottery
+            killNumber.lotteryStage = None if index + \
+                1 >= LotteryStages.count() else LotteryStages[index+1]
+
             killNumber.redBall = []
             killNumber.blueBall = []
 
@@ -389,26 +436,35 @@ class KillNumberViewSet(APIView):
                 for param in killNumberParam:
                     val = 0
                     if param.find('rll') != -1:
-                        if index-2 >= 0:
+                        r_dll = 2
+                        if index-r_dll >= 0:
                             val = json.loads(
-                                LotteryStages[index-2].redBall)[int(param[3:])-1]
+                                LotteryStages[index-r_dll].redBall)[int(param[3:])-1]
                     elif param.find('rl') != -1:
-                        if index-1 >= 0:
+                        r_dl = 1
+                        if index-r_dl >= 0:
                             val = json.loads(
-                                LotteryStages[index-1].redBall)[int(param[2:])-1]
+                                LotteryStages[index-r_dl].redBall)[int(param[2:])-1]
                     elif param.find('r') != -1:
-                        val = json.loads(lottery.redBall)[int(param[1:])-1]
+                        r_d = 0
+                        if index-r_d >= 0:
+                            val = json.loads(
+                                LotteryStages[index-r_d].redBall)[int(param[1:])-1]
                     elif param.find('bll') != -1:
-                        if index-2 >= 0:
+                        b_dll = 2
+                        if index-b_dll >= 0:
                             val = json.loads(
-                                LotteryStages[index-2].blueBall)[int(param[3:])-1]
+                                LotteryStages[index-b_dll].blueBall)[int(param[3:])-1]
                     elif param.find('bl') != -1:
-                        if index-1 >= 0:
+                        b_dl = 1
+                        if index-b_dl >= 0:
                             val = json.loads(
-                                LotteryStages[index-1].blueBall)[int(param[2:])-1]
+                                LotteryStages[index-b_dl].blueBall)[int(param[2:])-1]
                     elif param.find('b') != -1:
-                        val = json.loads(lottery.blueBall)[
-                            int(param[1:])-1]
+                        b_d = 0
+                        if index-b_d >= 0:
+                            val = json.loads(
+                                LotteryStages[index-b_d].blueBall)[int(param[1:])-1]
 
                     paramArr.append(val)
 

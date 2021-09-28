@@ -361,6 +361,9 @@ export default {
       var redBall = JSON.parse(record.redBall);
       var index = parseInt(key.slice(3)) - 1;
       var red = redBall[index];
+      if (typeof record.lotteryStage_redBall == "undefined") {
+        return;
+      }
       var rowValues = JSON.parse(record.lotteryStage_redBall);
       for (var value of rowValues) {
         if (red == value) {
@@ -378,6 +381,9 @@ export default {
       var blueBall = JSON.parse(record.blueBall);
       var index = parseInt(key.slice(4)) - 1;
       var blue = blueBall[index];
+      if (typeof record.lotteryStage_blueBall == "undefined") {
+        return;
+      }
       var rowValues = JSON.parse(record.lotteryStage_blueBall);
       for (var value of rowValues) {
         if (blue == value) {

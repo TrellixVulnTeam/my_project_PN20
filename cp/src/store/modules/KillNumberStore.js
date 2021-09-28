@@ -103,15 +103,17 @@ const KillNumberStore = {
           state.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
             var IssueNumber = element.IssueNumber;
-            var rowValues = JSON.parse(element.lotteryStage_redBall);
-            var echartsVal = 0;
-            for (var value of rowValues) {
-              if (red[index - 1] == value) {
-                echartsVal = 1;
-                break;
+            if (typeof element.lotteryStage_redBall != "undefined") {
+              var rowValues = JSON.parse(element.lotteryStage_redBall);
+              var echartsVal = 0;
+              for (var value of rowValues) {
+                if (red[index - 1] == value) {
+                  echartsVal = 1;
+                  break;
+                }
               }
+              echartsData.push({ IssueNumber: IssueNumber, value: echartsVal });
             }
-            echartsData.push({ IssueNumber: IssueNumber, value: echartsVal });
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -143,13 +145,17 @@ const KillNumberStore = {
           var echartsData = [];
           this.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
-            var lotteryStage_redBall = JSON.parse(element.lotteryStage_redBall);
-            var IssueNumber = element.IssueNumber;
-            echartsData.push({
-              IssueNumber: IssueNumber,
-              red: red,
-              lotteryStage_redBall: lotteryStage_redBall,
-            });
+            if (typeof element.lotteryStage_redBall != "undefined") {
+              var lotteryStage_redBall = JSON.parse(
+                element.lotteryStage_redBall
+              );
+              var IssueNumber = element.IssueNumber;
+              echartsData.push({
+                IssueNumber: IssueNumber,
+                red: red,
+                lotteryStage_redBall: lotteryStage_redBall,
+              });
+            }
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -200,15 +206,17 @@ const KillNumberStore = {
           this.dataInfo.data.forEach((element) => {
             var blue = JSON.parse(element.blueBall);
             var IssueNumber = element.IssueNumber;
-            var rowValues = JSON.parse(element.lotteryStage_blueBall);
-            var echartsVal = 0;
-            for (var value of rowValues) {
-              if (blue[index - 1] == value) {
-                echartsVal = 1;
-                break;
+            if (typeof element.lotteryStage_blueBall != "undefined") {
+              var rowValues = JSON.parse(element.lotteryStage_blueBall);
+              var echartsVal = 0;
+              for (var value of rowValues) {
+                if (blue[index - 1] == value) {
+                  echartsVal = 1;
+                  break;
+                }
               }
+              echartsData.push({ IssueNumber: IssueNumber, value: echartsVal });
             }
-            echartsData.push({ IssueNumber: IssueNumber, value: echartsVal });
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -240,15 +248,17 @@ const KillNumberStore = {
           var echartsData = [];
           this.dataInfo.data.forEach((element) => {
             var blue = JSON.parse(element.blueBall);
-            var lotteryStage_blueBall = JSON.parse(
-              element.lotteryStage_blueBall
-            );
-            var IssueNumber = element.IssueNumber;
-            echartsData.push({
-              IssueNumber: IssueNumber,
-              blue: blue,
-              lotteryStage_blueBall: lotteryStage_blueBall,
-            });
+            if (typeof element.lotteryStage_blueBall != "undefined") {
+              var lotteryStage_blueBall = JSON.parse(
+                element.lotteryStage_blueBall
+              );
+              var IssueNumber = element.IssueNumber;
+              echartsData.push({
+                IssueNumber: IssueNumber,
+                blue: blue,
+                lotteryStage_blueBall: lotteryStage_blueBall,
+              });
+            }
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;
@@ -297,19 +307,26 @@ const KillNumberStore = {
           var echartsData = [];
           this.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
-            var lotteryStage_redBall = JSON.parse(element.lotteryStage_redBall);
-            var blue = JSON.parse(element.blueBall);
-            var lotteryStage_blueBall = JSON.parse(
-              element.lotteryStage_blueBall
-            );
-            var IssueNumber = element.IssueNumber;
-            echartsData.push({
-              IssueNumber: IssueNumber,
-              red: red,
-              blue: blue,
-              lotteryStage_redBall: lotteryStage_redBall,
-              lotteryStage_blueBall: lotteryStage_blueBall,
-            });
+            if (
+              typeof element.lotteryStage_redBall != "undefined" &&
+              typeof element.lotteryStage_blueBall != "undefined"
+            ) {
+              var lotteryStage_redBall = JSON.parse(
+                element.lotteryStage_redBall
+              );
+              var blue = JSON.parse(element.blueBall);
+              var lotteryStage_blueBall = JSON.parse(
+                element.lotteryStage_blueBall
+              );
+              var IssueNumber = element.IssueNumber;
+              echartsData.push({
+                IssueNumber: IssueNumber,
+                red: red,
+                blue: blue,
+                lotteryStage_redBall: lotteryStage_redBall,
+                lotteryStage_blueBall: lotteryStage_blueBall,
+              });
+            }
           });
           echartsData.sort((a, b) => {
             return a.IssueNumber - b.IssueNumber;

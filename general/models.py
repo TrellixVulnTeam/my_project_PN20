@@ -109,7 +109,7 @@ class KillNumber(models.Model):
     blueBall = models.CharField(verbose_name='蓝球', validators=[
                                 int_list_validator], max_length=100, default=[])
     lotteryStage = models.OneToOneField(
-        to='LotteryStage', on_delete=models.CASCADE, related_name='KillNumber', default=None)
+        to='LotteryStage', on_delete=models.CASCADE, related_name='KillNumber', default=None, null=True)
 
     class Meta:
         ordering = ('-IssueNumber',)

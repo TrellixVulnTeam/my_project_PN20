@@ -3,6 +3,25 @@ from rest_framework import serializers
 from general.models import AscriptionType, GeneralProgramme, Category, LotteryStage, Rule, Forecast, ColdAndHot, KillNumber, KillNumberRule
 
 
+class DynamicFieldsModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)  # 提取fields
+
+        # 实例化父类
+        super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
+
+        if fields is not None:
+            # 删除fields参数中未指定的任何字段
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            if allowed:
+                for field_name in existing - allowed:
+                    self.fields.pop(field_name)
+            else:
+                # fields参数为空，则取全部字段
+                pass
+
+
 class AscriptionTypeSerializers(serializers.ModelSerializer):
     class Meta:
         model = AscriptionType
@@ -62,10 +81,11 @@ class ColdAndHotSerializers(serializers.ModelSerializer):
                   'redBall', 'blueBall', 'ascription')
 
 
-class KillNumberSerializers(serializers.ModelSerializer):
-    lotteryStage_redBall = serializers.CharField(source='lotteryStage.redBall')
-    lotteryStage_blueBall = serializers.CharField(
-        source='lotteryStage.blueBall')
+class KillNumberSerializers(DynamicFieldsModelSerializer):
+    lotteryStage_redBall = serializers.CharField(
+        required=False, source='lotteryStage.redBall')
+    lotteryStage_blueBall = serializers.CharField(required=False,
+                                                  source='lotteryStage.blueBall')
 
     class Meta:
         model = KillNumber
