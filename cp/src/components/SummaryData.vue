@@ -133,7 +133,7 @@ export default {
     this.setBaseInfo(this.$route.query);
     var idWidth = 50;
     var IssueNumberWidth = 80;
-    var timeWidth = 80;
+    var timeWidth = 70;
     var dataWidth = 50;
 
     this.columns = [
