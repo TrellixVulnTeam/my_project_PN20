@@ -20,7 +20,8 @@ export default {
   data: function () {
     return {};
   },
-  created: function () {
+  mounted: function () {
+    console.log("Quotient");
     this.setAscription("QuotientStore");
   },
   watch: {},

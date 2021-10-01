@@ -13,3 +13,4 @@ export { default as PercentageOutline } from "@ant-design/icons/lib/outline/Perc
 export { default as LineOutline } from "@ant-design/icons/lib/outline/LineOutline";
 export { default as DownOutline } from "@ant-design/icons/lib/outline/DownOutline";
 export { default as UpOutline } from "@ant-design/icons/lib/outline/UpOutline";
+export { default as HomeOutline } from "@ant-design/icons/lib/outline/HomeOutline";

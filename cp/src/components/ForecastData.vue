@@ -1,5 +1,5 @@
 <template>
-  <div class="ColdAndHotData">
+  <div class="ForecastData">
     <a-table
       :columns="columns"
       :data-source="dataInfo.data"
@@ -85,14 +85,28 @@
 
 <script>
 import { mapMutations, mapActions, mapGetters, mapState } from "vuex";
-import mixin from "@/mixins/DataMixins.js";
 
 export default {
-  mixins: [mixin],
-  name: "ColdAndHotData",
+  name: "ForecastData",
+  components: {},
+  inject: ["reload"],
   data: function () {
     return {
       columns: [],
+      //表格分页参数
+      pagination: {
+        pageNo: 1,
+        pageSize: 10, // 默认每页显示数量
+        showSizeChanger: true, // 显示可改变每页数量
+        pageSizeOptions: ["10", "20", "50", "100"], // 每页数量选项
+        showTotal: (total) => `共 ${total} 条数据`, // 显示总数
+        onShowSizeChange: (current, pageSize) =>
+          this.changePageSize(current, pageSize), // 改变每页数量时更新显示
+        onChange: (page, pageSize) => this.changePage(page, pageSize), //点击页码事件
+        total: 0, //总条数
+        showQuickJumper: true, //显示跳转输入框
+      },
+      currentPage: 1,
     };
   },
   computed: {
@@ -113,11 +127,12 @@ export default {
     }),
   },
   created: function () {
-    this.theme = { name: "冷热", change: false };
-    var ColdAndHotData = this;
+    this.resetState();
+    this.setBaseInfo(this.$route.query);
+    var ForecastData = this;
+    var idWidth = 60;
+    var IssueNumberWidth = 80;
     var dataWidth = 50;
-    var idWidth = 50;
-    var IssueNumberWidth = 60;
 
     this.columns = [
       {
@@ -138,7 +153,6 @@ export default {
         fixed: "left",
       },
     ];
-
     var redBallMaxValue = this.baseInfo.rule
       ? this.baseInfo.rule.redBallMaxValue
         ? this.baseInfo.rule.redBallMaxValue
@@ -154,7 +168,7 @@ export default {
         scopedSlots: { customRender: redKey },
         align: "center",
         customCell: function (record) {
-          return ColdAndHotData.renderRedCell(record, this.key);
+          return ForecastData.renderRedCell(record, this.key);
         },
       };
       var redInfo = {
@@ -189,7 +203,7 @@ export default {
         scopedSlots: { customRender: blueKey },
         align: "center",
         customCell: function (record) {
-          return ColdAndHotData.renderBlueCell(record, this.key);
+          return ForecastData.renderBlueCell(record, this.key);
         },
       };
       var blueInfo = {
@@ -208,6 +222,18 @@ export default {
       objBlue.children.push(subObjBlue);
     }
     this.columns.push(objBlue);
+
+    this.currentPage = 1;
+    this.setDataInfoAction().then((msg) => {
+      this.pagination.total = msg.count;
+      this.pagination.pageSize = msg.pageSize;
+    });
+  },
+  watch: {
+    $route() {
+      this.reload();
+    },
+    "$route.path": function () {},
   },
   methods: {
     ...mapMutations("ColdAndHotStore", {
@@ -230,6 +256,85 @@ export default {
       setXAxis: "setXAxis",
       setSeries: "setSeries",
     }),
+    //点击页码事件
+    changePage(page, pageSize) {
+      console.log(page, "当前页.......");
+      console.log(pageSize, "每页大小.......");
+      this.currentPage = page;
+      this.setDataInfoAction({
+        pageQueryParam: page,
+        pageSizeQueryParam: pageSize,
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
+    },
+    //每页显示数量改变的事件
+    changePageSize(current, pageSize) {
+      console.log(current, "当前页.......");
+      console.log(pageSize, "每页大小.......");
+      this.currentPage = current;
+      this.setDataInfoAction({
+        pageQueryParam: current,
+        pageSizeQueryParam: pageSize,
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
+    },
+    flashClick: function () {
+      this.setDataInfoAction({
+        pageQueryParam: this.currentPage,
+        pageSizeQueryParam: this.getDataInfoItemByKey("pageSize"),
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
+    },
+    redAnalysisClick: function (cell) {
+      console.log("redAnalysisClick", cell);
+      var name = this.getDataTableRedInfoByIndex(cell - 1).name;
+      this.setVisible(true);
+      this.setViewTitle(name + "的冷热分析图");
+      var data = this.redAnalysisByIndex(cell);
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    blueAnalysisClick: function (cell) {
+      console.log("blueAnalysisClick", cell);
+      var name = this.getDataTableBlueInfoByIndex(cell - 1).name;
+      this.setVisible(true);
+      this.setViewTitle(name + "的冷热分析图");
+      var data = this.blueAnalysisByIndex(cell);
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    analysisClick: function () {
+      this.setVisible(true);
+      this.setViewTitle("全数据冷热分析图");
+      var data = this.analysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    analysisRedClick: function () {
+      this.setVisible(true);
+      this.setViewTitle("红球数据冷热分析图");
+      var data = this.redAnalysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    analysisBlueClick: function () {
+      this.setVisible(true);
+      this.setViewTitle("蓝球数据冷热分析图");
+      var data = this.blueAnalysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
     renderRedCell: function (record, key) {
       var redBall = JSON.parse(record.redBall);
       var index = parseInt(key.slice(3)) - 1;
@@ -295,7 +400,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.ColdAndHotData {
+.ForecastData {
   width: 100%;
   height: 100%;
   overflow: auto;

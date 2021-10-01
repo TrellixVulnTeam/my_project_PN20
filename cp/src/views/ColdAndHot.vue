@@ -17,7 +17,8 @@ export default {
   data: function () {
     return {};
   },
-  created: function () {
+  mounted: function () {
+    console.log("ColdAndHot");
     this.setAscription("ColdAndHotStore");
   },
   watch: {},

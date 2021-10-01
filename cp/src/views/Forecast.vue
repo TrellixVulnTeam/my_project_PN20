@@ -1,20 +1,33 @@
 <template>
   <div class="Forecast">
-    <DataView> </DataView>
+    <DataComponent></DataComponent>
+    <ViewComponent></ViewComponent>
   </div>
 </template>
 
 <script>
-import DataView from "@/components/StandardView.vue";
+import DataComponent from "@/components/ForecastData.vue";
+import ViewComponent from "@/components/StandardView.vue";
+import { mapMutations } from "vuex";
 
 export default {
   name: "Forecast",
-  components: { DataView },
+  components: { DataComponent, ViewComponent },
+  inject: ["reload"],
+  data: function () {
+    return {};
+  },
+  mounted: function () {
+    console.log("Forecast");
+    this.setAscription("ForecastStore");
+  },
+  watch: {},
+  methods: {
+    ...mapMutations("EchartsStore", {
+      setAscription: "setAscription",
+    }),
+  },
 };
 </script>
 
-<style lang="scss" scoped>
-table {
-  width: 100%;
-}
-</style>
+<style lang="scss" scoped></style>

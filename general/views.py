@@ -145,7 +145,7 @@ class LotteryStageListViewSet(APIView):
             path['path6'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[6]'
             path['path7'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[7]'
             path['path8'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[8]'
-            if int(kwargs['ascriptionType']) == 1:
+            if int(kwargs['ascriptionType']) == 2:
                 path['path15'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[15]'
                 path['path9'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[9]'
 
@@ -154,7 +154,7 @@ class LotteryStageListViewSet(APIView):
                 path['path12'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[12]'
                 path['path13'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[13]'
                 path['path14'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[14]'
-            elif int(kwargs['ascriptionType']) == 2:
+            elif int(kwargs['ascriptionType']) == 3:
                 path['path15'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[16]'
                 path['path9'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[10]'
 

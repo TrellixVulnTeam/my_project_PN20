@@ -4,20 +4,24 @@
       mode="inline"
       theme="dark"
       :open-keys="openKeys"
+      :selectedKeys="selectedKeys"
       @openChange="onOpenChange"
     >
       <template v-for="(item, index) in navList">
         <a-menu-item
-          v-if="typeof item.children == 'undefined'"
-          :key="index + 1"
+          v-if="
+            typeof item.children == 'undefined' || item.children.length <= 0
+          "
+          :key="'menu' + index"
         >
           <span
-            ><a-icon :type="item.type" /><span @click="menuClick(item)">{{
-              item.name
-            }}</span></span
+            ><a-icon :type="item.type" /><span
+              @click="menuClick(item, 'menu' + index)"
+              >{{ item.name }}</span
+            ></span
           >
         </a-menu-item>
-        <a-sub-menu v-else :key="index + 1">
+        <a-sub-menu v-else :key="'menu' + index">
           <span slot="title"
             ><a-icon :type="item.type" /><span>{{ item.name }}</span></span
           >
@@ -27,7 +31,7 @@
           >
             <span
               ><a-icon :type="cell.type" /><span
-                @click="titleClick(cell, item)"
+                @click="titleClick(cell, item, 'menu' + index, cellIndex)"
                 >{{ cell.name }}</span
               ></span
             >
@@ -50,23 +54,28 @@ export default {
     },
   },
   data: function () {
-    return { rootSubmenuKeys: [], openKeys: [1] };
+    return {
+      rootSubmenuKeys: [],
+      openKeys: ["menu0"],
+      selectedKeys: [],
+    };
   },
   watch: {
     "$route.path": function () {},
     navList: function (val) {
       val.forEach((element, index) => {
-        this.rootSubmenuKeys.push(index + 1);
+        this.rootSubmenuKeys.push("menu" + index);
       });
       console.log("this.rootSubmenuKeys", this.rootSubmenuKeys);
     },
   },
   created: function () {},
   methods: {
-    menuClick: function (obj) {
+    menuClick: function (obj, key) {
       console.log("menuClick", obj);
+      this.selectedKeys = [key];
       this.$router.push({
-        path: obj.localPath,
+        path: typeof obj.localPath == "undefined" ? "/" : obj.localPath,
         query: {
           url: obj.netPath,
           ascription: obj.ascriptionType,
@@ -77,8 +86,9 @@ export default {
         },
       });
     },
-    titleClick: function (obj, item) {
+    titleClick: function (obj, item, key, index) {
       console.log("titleClick", obj);
+      this.selectedKeys = [key, index];
       this.$router.push({
         path: obj.localPath,
         query: {
@@ -93,9 +103,10 @@ export default {
     },
     onOpenChange(openKeys) {
       console.log("openKeys", openKeys);
-      const latestOpenKey = openKeys.find(
+      var latestOpenKey = openKeys.find(
         (key) => this.openKeys.indexOf(key) === -1
       );
+      this.selectedKeys = [];
       if (this.rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
         this.openKeys = openKeys;
       } else {

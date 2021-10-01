@@ -99,7 +99,7 @@ export default {
   },
   watch: {
     visible(newVal) {
-      console.log(this.dataTableInfo);
+      console.log("visible", this.dataTableInfo);
       if (newVal == true) {
         var hasFind = false;
         for (var item of this.dataTableInfo.red) {
@@ -158,8 +158,18 @@ export default {
           toolbox: {
             right: 50,
             feature: {
-              restore: {},
-              saveAsImage: {},
+              restore: {
+                //重置
+                show: true,
+              },
+              saveAsImage: {
+                //保存图片
+                show: true,
+              },
+              magicType: {
+                //动态类型切换
+                type: ["bar", "line"],
+              },
             },
           },
           axisPointer: {

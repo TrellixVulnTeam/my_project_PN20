@@ -38,6 +38,13 @@ const EchartsStore = {
   actions: {},
   getters: {
     getDataTableInfo(state, getter, rootState) {
+      console.log("getDataTableInfo", state.ascription);
+      if (typeof state.ascription == "undefined" || state.ascription == "") {
+        console.log(
+          "typeof state.ascription == undefined || state.ascription == ''"
+        );
+        return [];
+      }
       return rootState[state.ascription].dataTableInfo;
     },
     redAnalysisByIndex(state, getter, rootState, rootGetters) {

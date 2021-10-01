@@ -2,7 +2,6 @@ var DataMixins = {
   inject: ["reload"],
   data: function () {
     return {
-      columns: [],
       //表格分页参数
       pagination: {
         pageNo: 1,
@@ -17,7 +16,17 @@ var DataMixins = {
         showQuickJumper: true, //显示跳转输入框
       },
       currentPage: 1,
+      theme: {},
     };
+  },
+  created: function () {
+    this.resetState();
+    this.setBaseInfo(this.$route.query);
+    this.currentPage = 1;
+    this.setDataInfoAction().then((msg) => {
+      this.pagination.total = msg.count;
+      this.pagination.pageSize = msg.pageSize;
+    });
   },
   watch: {
     $route() {
@@ -25,7 +34,109 @@ var DataMixins = {
     },
     "$route.path": function () {},
   },
-  methods: {},
+  methods: {
+    //点击页码事件
+    changePage(page, pageSize) {
+      console.log(page, "当前页.......");
+      console.log(pageSize, "每页大小.......");
+      this.currentPage = page;
+      this.setDataInfoAction({
+        pageQueryParam: page,
+        pageSizeQueryParam: pageSize,
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
+    },
+    //每页显示数量改变的事件
+    changePageSize(current, pageSize) {
+      console.log(current, "当前页.......");
+      console.log(pageSize, "每页大小.......");
+      this.currentPage = current;
+      this.setDataInfoAction({
+        pageQueryParam: current,
+        pageSizeQueryParam: pageSize,
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
+    },
+    flashClick: function () {
+      this.setDataInfoAction({
+        pageQueryParam: this.currentPage,
+        pageSizeQueryParam: this.getDataInfoItemByKey("pageSize"),
+      }).then((msg) => {
+        this.pagination.total = msg.count;
+        this.pagination.pageSize = msg.pageSize;
+      });
+    },
+    redAnalysisClick: function (cell) {
+      console.log("redAnalysisClick", cell);
+      var name = this.getDataTableRedInfoByIndex(cell - 1).name;
+      this.setVisible(true);
+      this.setViewTitle(name + "的" + this.theme.name + "分析图");
+      if (this.theme.change == true) {
+        var key = this.getDataTableRedInfoByIndex(cell - 1).key;
+        this.setDataTableRedSelectedInfoByKey(key);
+        this.setDataTableBlueSelectedInfo(false);
+      }
+      var data = this.redAnalysisByIndex(cell);
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    blueAnalysisClick: function (cell) {
+      console.log("blueAnalysisClick", cell);
+      var name = this.getDataTableBlueInfoByIndex(cell - 1).name;
+      this.setVisible(true);
+      this.setViewTitle(name + "的" + this.theme.name + "分析图");
+      if (this.theme.change == true) {
+        var key = this.getDataTableBlueInfoByIndex(cell - 1).key;
+        this.setDataTableBlueSelectedInfoByKey(key);
+        this.setDataTableRedSelectedInfo(false);
+      }
+      var data = this.blueAnalysisByIndex(cell);
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    analysisClick: function () {
+      this.setVisible(true);
+      this.setViewTitle("全数据" + this.theme.name + "分析图");
+      if (this.theme.change == true) {
+        this.setDataTableBlueSelectedInfo(true);
+        this.setDataTableRedSelectedInfo(true);
+      }
+      var data = this.analysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    analysisRedClick: function () {
+      this.setVisible(true);
+      this.setViewTitle("红球数据" + this.theme.name + "分析图");
+      if (this.theme.change == true) {
+        this.setDataTableRedSelectedInfo(true);
+        this.setDataTableBlueSelectedInfo(false);
+      }
+      var data = this.redAnalysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+    analysisBlueClick: function () {
+      this.setVisible(true);
+      this.setViewTitle("蓝球数据" + this.theme.name + "分析图");
+      if (this.theme.change == true) {
+        this.setDataTableBlueSelectedInfo(true);
+        this.setDataTableRedSelectedInfo(false);
+      }
+      var data = this.blueAnalysis();
+      this.setLegend(data.legend);
+      this.setXAxis(data.xAxis);
+      this.setSeries(data.series);
+    },
+  },
 };
 
 export default DataMixins;
