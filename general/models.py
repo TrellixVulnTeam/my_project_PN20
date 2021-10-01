@@ -51,6 +51,10 @@ class LotteryStage(models.Model):
     ascription = models.ForeignKey(
         to='GeneralProgramme', on_delete=models.CASCADE, related_name='LotteryStages', default=None)
     IssueNumber = models.IntegerField(verbose_name='期号', default='')
+    time = models.CharField(
+        max_length=20, verbose_name='开奖日期', help_text='开奖日期（CharField）', blank=True, default='')
+    MoneyBalance = models.BigIntegerField(verbose_name='金钱差额', default=0)
+    Balance = models.BigIntegerField(verbose_name='余额', default=0)
     redBall = models.CharField(verbose_name='红球', validators=[
                                int_list_validator], max_length=100, default=[])
     blueBall = models.CharField(verbose_name='蓝球', validators=[

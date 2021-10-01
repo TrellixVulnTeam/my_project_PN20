@@ -1,3 +1,4 @@
+import re
 from rest_framework.serializers import Serializer
 from general.serializers import GeneralProgrammeSerializers, CategorySerializers, LotteryStageSerializers, ForecastSerializers, ColdAndHotSerializers, KillNumberSerializers
 from general.models import GeneralProgramme, Category, LotteryStage, Forecast, ColdAndHot, KillNumber
@@ -10,8 +11,8 @@ from general.utils import geturl
 from lxml import etree
 import json
 import math
-import pandas as pd
-from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
+from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 
 # Create your views here.
@@ -48,8 +49,6 @@ class ClearViewSet(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         navList.LotteryStages.all().delete()
-        navList.ColdAndHots.all().delete()
-        navList.KillNumbers.all().delete()
 
         return Response()
 
@@ -146,6 +145,25 @@ class LotteryStageListViewSet(APIView):
             path['path6'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[6]'
             path['path7'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[7]'
             path['path8'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[8]'
+            if int(kwargs['ascriptionType']) == 1:
+                path['path15'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[15]'
+                path['path9'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[9]'
+
+                path['path10'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[10]'
+                path['path11'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[11]'
+                path['path12'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[12]'
+                path['path13'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[13]'
+                path['path14'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[14]'
+            elif int(kwargs['ascriptionType']) == 2:
+                path['path15'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[16]'
+                path['path9'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[10]'
+
+                path['path10'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[11]'
+                path['path11'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[12]'
+                path['path12'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[13]'
+                path['path13'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[14]'
+                path['path14'] = r'//*[@id="tdata"]/tr['+str(i)+']/td[15]'
+
             ordernum = int(alldata.xpath(path['path1'])[0].text)
 
             lotteryStage = LotteryStage.objects.filter(
@@ -156,6 +174,11 @@ class LotteryStageListViewSet(APIView):
 
                 lotteryStage.IssueNumber = ordernum
                 lotteryStage.ascription_id = kwargs['ascriptionType']
+                lotteryStage.time = alldata.xpath(path['path15'])[0].text
+                lotteryStage.Balance = int(alldata.xpath(
+                    path['path9'])[0].text.replace(',', ''))
+                lotteryStage.MoneyBalance = int(alldata.xpath(path['path14'])[0].text.replace(',', ''))-(int(alldata.xpath(path['path13'])[0].text.replace(',', ''))*int(
+                    alldata.xpath(path['path12'])[0].text.replace(',', ''))+int(alldata.xpath(path['path11'])[0].text.replace(',', ''))*int(alldata.xpath(path['path10'])[0].text.replace(',', '')))
                 rule = lotteryStage.ascription.Rule
                 lotteryStage.redBall = []
                 lotteryStage.blueBall = []
@@ -208,40 +231,63 @@ class ForecastViewSet(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         LotteryStages = navList.LotteryStages.all().order_by(
-            '-IssueNumber')
+            'IssueNumber')
+
+        predict = int(request.query_params['predict'])
+
+        if int(LotteryStages.count()) <= predict:
+            return Response('数据数量'+str(LotteryStages.count())+'太少，不足已进行预测')
 
         Rule = navList.Rule
-        feature_names = []
+        X = []
+        y = []
+        x_predict = []
 
-        for j in range(0, int(Rule.redBallNum)):
-            feature_names.append('red'+str(j+1))
+        for r_i in range(0, Rule.redBallNum+Rule.blueBallNum):
+            X.append([])
+            y.append([])
+            x_predict.append([])
 
-        for j in range(0, int(Rule.blueBallNum)):
-            feature_names.append('blue'+str(j+1))
+        for i in range(0, int(LotteryStages.count())+1):
+            if i - predict >= 0:
+                if i >= int(LotteryStages.count()):
+                    for j in range(i - predict, i):
+                        cell = LotteryStages[j]
+                        s_balls = json.loads(
+                            cell.redBall) + json.loads(cell.blueBall)
+                        for s in range(0, len(s_balls)):
+                            x_predict[s].append(s_balls[s])
+                else:
+                    item = LotteryStages[i]
+                    b_balls = json.loads(item.redBall) + \
+                        json.loads(item.blueBall)
+                    x_temp = []
+                    for b in range(0, len(b_balls)):
+                        x_temp.append([])
+                        y[b].append(b_balls[b])
 
-        index = []
-        balls = []
+                    for j in range(i - predict, i):
+                        cell = LotteryStages[j]
+                        s_balls = json.loads(
+                            cell.redBall) + json.loads(cell.blueBall)
+                        for s in range(0, len(s_balls)):
+                            x_temp[s].append(s_balls[s])
 
-        for lottery in LotteryStages:
-            index.append(lottery.IssueNumber)
-            balls.append(json.loads(lottery.redBall) +
-                         json.loads(lottery.blueBall))
+                    for r_i in range(0, Rule.redBallNum+Rule.blueBallNum):
+                        X[r_i].append(x_temp[r_i])
 
-        df = pd.DataFrame(balls, index=index, columns=feature_names)
+        resultArr = []
+        for i in range(0, Rule.redBallNum+Rule.blueBallNum):
+            # xtrain, xtest, ytrain, ytest = train_test_split(
+            #     X[i], y[i], test_size=0.3, random_state=0)
+            reg = linear_model.LinearRegression()
+            reg.fit(X[i], y[i])
+            result = reg.predict(np.array(x_predict[i]).reshape(1, -1))
+            score = reg.score(X[i], y[i])
+            # resultArr.append({result: result, score: score})
+            print('测试数据结果：', result, score)
 
-        print(df.describe())
-
-        # X_train, X_test, Y_train, Y_test = train_test_split(
-        #     red_df, test_size=0.3)
-
-        # knn = KNeighborsClassifier()
-        # knn.fit(X_train, Y_train)
-        # result = knn.predict(X_test)
-        # print('测试数据的结果：', result[-10:-1])
-
-        # score = knn.score(X_test)  # 计算成功率
-        # print('测试数据评估score ：', score)
-        return Response(df.describe())
+        return Response(data=resultArr)
 
 
 class ColdAndHotViewSet(APIView):

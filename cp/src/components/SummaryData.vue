@@ -133,6 +133,7 @@ export default {
     this.setBaseInfo(this.$route.query);
     var idWidth = 50;
     var IssueNumberWidth = 80;
+    var timeWidth = 80;
     var dataWidth = 50;
 
     this.columns = [
@@ -149,6 +150,13 @@ export default {
         width: IssueNumberWidth,
         dataIndex: "IssueNumber",
         key: "期号",
+        align: "center",
+      },
+      {
+        title: "时间",
+        width: timeWidth,
+        dataIndex: "time",
+        key: "时间",
         align: "center",
       },
     ];

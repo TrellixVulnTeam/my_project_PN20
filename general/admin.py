@@ -65,9 +65,11 @@ class LotteryStageAdmin(admin.ModelAdmin):
     # 添加分页
     list_per_page = 10
     # 列表页展示的字段
-    list_display = ('id', 'IssueNumber', 'redBall', 'blueBall', 'ascription')
+    list_display = ('id', 'time', 'IssueNumber', 'MoneyBalance', 'Balance',
+                    'redBall', 'blueBall', 'ascription')
     # 搜索框
-    search_fields = ('id', 'IssueNumber', 'ascription')
+    search_fields = ('id', 'time', 'MoneyBalance',
+                     'Balance', 'IssueNumber', 'ascription')
 
 
 @admin.register(models.Forecast)
