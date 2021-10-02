@@ -7,7 +7,7 @@ var DataMixins = {
         pageNo: 1,
         pageSize: 10, // 默认每页显示数量
         showSizeChanger: true, // 显示可改变每页数量
-        pageSizeOptions: ["10", "20", "50", "100"], // 每页数量选项
+        pageSizeOptions: ["100", "200", "500", "2000"], // 每页数量选项
         showTotal: (total) => `共 ${total} 条数据`, // 显示总数
         onShowSizeChange: (current, pageSize) =>
           this.changePageSize(current, pageSize), // 改变每页数量时更新显示

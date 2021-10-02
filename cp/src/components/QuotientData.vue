@@ -134,9 +134,9 @@ export default {
   },
   created: function () {
     this.theme = { name: "取商", change: true };
-    var dataWidth = 80;
     var idWidth = 50;
-    var IssueNumberWidth = 60;
+    var IssueNumberWidth = 80;
+    var dataWidth = 50;
 
     this.columns = [
       {

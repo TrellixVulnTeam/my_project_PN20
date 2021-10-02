@@ -257,7 +257,7 @@ export default {
       console.log("redAnalysisClick", cell);
       var name = this.getDataTableRedInfoByIndex(cell - 1).name.slice(1);
       this.setVisible(true);
-      this.setViewTitle(name + "的" + this.theme + "分析图");
+      this.setViewTitle(name + "的" + this.theme.name + "分析图");
       var data = this.redAnalysisByIndex(cell);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
@@ -267,7 +267,7 @@ export default {
       console.log("blueAnalysisClick", cell);
       var name = this.getDataTableBlueInfoByIndex(cell - 1).name.slice(1);
       this.setVisible(true);
-      this.setViewTitle(name + "的" + this.theme + "分析图");
+      this.setViewTitle(name + "的" + this.theme.name + "分析图");
       var data = this.blueAnalysisByIndex(cell);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
@@ -275,7 +275,7 @@ export default {
     },
     analysisClick: function () {
       this.setVisible(true);
-      this.setViewTitle("全数据" + this.theme + "分析图");
+      this.setViewTitle("全数据" + this.theme.name + "分析图");
       var data = this.analysis();
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
@@ -283,7 +283,7 @@ export default {
     },
     analysisRedClick: function () {
       this.setVisible(true);
-      this.setViewTitle("红球数据" + this.theme + "分析图");
+      this.setViewTitle("红球数据" + this.theme.name + "分析图");
       var data = this.redAnalysis();
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
@@ -291,7 +291,7 @@ export default {
     },
     analysisBlueClick: function () {
       this.setVisible(true);
-      this.setViewTitle("蓝球数据" + this.theme + "分析图");
+      this.setViewTitle("蓝球数据" + this.theme.name + "分析图");
       var data = this.blueAnalysis();
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
