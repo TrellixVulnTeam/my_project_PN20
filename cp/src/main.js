@@ -31,6 +31,7 @@ import {
   Affix,
   Calendar,
   Switch,
+  Space,
 } from "ant-design-vue";
 Vue.use(Layout)
   .use(Icon)
@@ -51,6 +52,7 @@ Vue.use(Layout)
   .use(Affix)
   .use(Calendar)
   .use(Switch)
+  .use(Space)
   .use(Pagination);
 
 Vue.config.productionTip = false;
