@@ -83,13 +83,15 @@
       </template>
 
       <template slot="title">
-        {{ $t("language." + baseInfo.name) }}
-        <a-button type="link" @click="flashClick">
-          {{ $t("language.Flash") }}
-        </a-button>
-        <a-button type="link" @click="analysisClick">
-          {{ $t("language.FullDataAnalysis") }}
-        </a-button>
+        <a-space size="25">
+          {{ $t("language." + baseInfo.name) }}
+          <a-button type="link" @click="flashClick">
+            {{ $t("language.Flash") }}
+          </a-button>
+          <a-button type="link" @click="analysisClick">
+            {{ $t("language.FullDataAnalysis") }}
+          </a-button>
+        </a-space>
       </template>
     </a-table>
   </div>
