@@ -1,7 +1,7 @@
 import re
 from rest_framework.serializers import Serializer
-from general.serializers import GeneralProgrammeSerializers, CategorySerializers, LotteryStageSerializers, ForecastSerializers, ColdAndHotSerializers, KillNumberSerializers
-from general.models import GeneralProgramme, Category, LotteryStage, Forecast, ColdAndHot, KillNumber
+from general.serializers import GeneralProgrammeSerializers, CategorySerializers, LotteryStageSerializers, ColdAndHotSerializers, KillNumberSerializers
+from general.models import GeneralProgramme, Category, LotteryStage, ColdAndHot, KillNumber
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,9 +11,6 @@ from general.utils import geturl
 from lxml import etree
 import json
 import math
-import numpy as np
-from sklearn import linear_model
-from sklearn.model_selection import train_test_split
 
 # Create your views here.
 
@@ -193,101 +190,6 @@ class LotteryStageListViewSet(APIView):
                 lotteryStage.save()
 
         return Response()
-
-
-class ForecastViewSet(APIView):
-    def get(self, request, *args, **kwargs):
-        try:
-            navList = GeneralProgramme.objects.get(
-                ascriptionType__id=kwargs['ascriptionType'])
-        except GeneralProgramme.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        Forecasts = navList.Forecasts.all()
-        p = AdaptPagination()
-        # 在数据库中获取分页数据
-        pager_roles = p.paginate_queryset(
-            queryset=Forecasts, request=request, view=self)
-
-        if pager_roles is not None:
-            serializer = ForecastSerializers(
-                instance=pager_roles, many=True)
-            data = {
-                'request': request,
-                'msg': '成功',
-                'code': 0,
-                'data': serializer.data
-            }
-            return p.get_paginated_response(data)
-
-        serializer = ForecastSerializers(Forecasts, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, *args, **kwargs):
-        try:
-            navList = GeneralProgramme.objects.get(
-                ascriptionType__id=kwargs['ascriptionType'])
-        except GeneralProgramme.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        LotteryStages = navList.LotteryStages.all().order_by(
-            'IssueNumber')
-
-        predict = int(request.query_params['predict'])
-
-        if int(LotteryStages.count()) <= predict:
-            return Response('数据数量'+str(LotteryStages.count())+'太少，不足已进行预测')
-
-        Rule = navList.Rule
-        X = []
-        y = []
-        x_predict = []
-
-        for r_i in range(0, Rule.redBallNum+Rule.blueBallNum):
-            X.append([])
-            y.append([])
-            x_predict.append([])
-
-        for i in range(0, int(LotteryStages.count())+1):
-            if i - predict >= 0:
-                if i >= int(LotteryStages.count()):
-                    for j in range(i - predict, i):
-                        cell = LotteryStages[j]
-                        s_balls = json.loads(
-                            cell.redBall) + json.loads(cell.blueBall)
-                        for s in range(0, len(s_balls)):
-                            x_predict[s].append(s_balls[s])
-                else:
-                    item = LotteryStages[i]
-                    b_balls = json.loads(item.redBall) + \
-                        json.loads(item.blueBall)
-                    x_temp = []
-                    for b in range(0, len(b_balls)):
-                        x_temp.append([])
-                        y[b].append(b_balls[b])
-
-                    for j in range(i - predict, i):
-                        cell = LotteryStages[j]
-                        s_balls = json.loads(
-                            cell.redBall) + json.loads(cell.blueBall)
-                        for s in range(0, len(s_balls)):
-                            x_temp[s].append(s_balls[s])
-
-                    for r_i in range(0, Rule.redBallNum+Rule.blueBallNum):
-                        X[r_i].append(x_temp[r_i])
-
-        resultArr = []
-        for i in range(0, Rule.redBallNum+Rule.blueBallNum):
-            # xtrain, xtest, ytrain, ytest = train_test_split(
-            #     X[i], y[i], test_size=0.3, random_state=0)
-            reg = linear_model.LinearRegression()
-            reg.fit(X[i], y[i])
-            result = reg.predict(np.array(x_predict[i]).reshape(1, -1))
-            score = reg.score(X[i], y[i])
-            # resultArr.append({result: result, score: score})
-            print('测试数据结果：', result, score)
-
-        return Response(data=resultArr)
 
 
 class ColdAndHotViewSet(APIView):

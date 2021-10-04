@@ -64,19 +64,6 @@ class LotteryStage(models.Model):
         ordering = ('-IssueNumber',)
 
 
-class Forecast(models.Model):
-    ascription = models.ForeignKey(
-        to='GeneralProgramme', on_delete=models.CASCADE, related_name='Forecasts', default=None)
-    IssueNumber = models.IntegerField(verbose_name='期号', default='')
-    redBall = models.CharField(verbose_name='红球', validators=[
-                               int_list_validator], max_length=100, default=[])
-    blueBall = models.CharField(verbose_name='蓝球', validators=[
-                                int_list_validator], max_length=100, default=[])
-
-    class Meta:
-        ordering = ('IssueNumber',)
-
-
 class ColdAndHot(models.Model):
     ascription = models.ForeignKey(
         to='GeneralProgramme', on_delete=models.CASCADE, related_name='ColdAndHots', default=None)

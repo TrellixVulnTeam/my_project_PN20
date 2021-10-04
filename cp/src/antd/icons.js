@@ -3,7 +3,6 @@ export { default as MenuUnfoldOutline } from "@ant-design/icons/lib/outline/Menu
 export { default as DollarOutline } from "@ant-design/icons/lib/outline/DollarOutline";
 export { default as EuroOutline } from "@ant-design/icons/lib/outline/EuroOutline";
 export { default as NumberOutline } from "@ant-design/icons/lib/outline/NumberOutline";
-export { default as AlibabaOutline } from "@ant-design/icons/lib/outline/AlibabaOutline";
 export { default as AntCloudOutline } from "@ant-design/icons/lib/outline/AntCloudOutline";
 export { default as LeftOutline } from "@ant-design/icons/lib/outline/LeftOutline";
 export { default as RightOutline } from "@ant-design/icons/lib/outline/RightOutline";

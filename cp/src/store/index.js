@@ -7,7 +7,6 @@ import QuotientStore from "./modules/QuotientStore";
 import SurplusStore from "./modules/SurplusStore";
 import KillNumberStore from "./modules/KillNumberStore";
 import ColdAndHotStore from "./modules/ColdAndHotStore";
-import ForecastStore from "./modules/ForecastStore";
 
 Vue.use(Vuex);
 
@@ -24,6 +23,5 @@ export default new Vuex.Store({
     SurplusStore,
     KillNumberStore,
     ColdAndHotStore,
-    ForecastStore,
   },
 });

@@ -8,7 +8,7 @@ var DataMixins = {
         pageSize: 10, // 默认每页显示数量
         showSizeChanger: true, // 显示可改变每页数量
         pageSizeOptions: ["100", "200", "500", "2000"], // 每页数量选项
-        showTotal: (total) => `共 ${total} 条数据`, // 显示总数
+        showTotal: (total) => this.$t("language.ShowTotal").format(total), // 显示总数
         onShowSizeChange: (current, pageSize) =>
           this.changePageSize(current, pageSize), // 改变每页数量时更新显示
         onChange: (page, pageSize) => this.changePage(page, pageSize), //点击页码事件
@@ -72,66 +72,64 @@ var DataMixins = {
     },
     redAnalysisClick: function (cell) {
       console.log("redAnalysisClick", cell);
-      var name = this.getDataTableRedInfoByIndex(cell - 1).name;
-      this.setVisible(true);
-      this.setViewTitle(name + "的" + this.theme.name + "分析图");
       if (this.theme.change == true) {
         var key = this.getDataTableRedInfoByIndex(cell - 1).key;
         this.setDataTableRedSelectedInfoByKey(key);
         this.setDataTableBlueSelectedInfo(false);
       }
       var data = this.redAnalysisByIndex(cell);
+      this.setVisible(true);
+      this.setViewTitle(data.name);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
       this.setSeries(data.series);
     },
     blueAnalysisClick: function (cell) {
       console.log("blueAnalysisClick", cell);
-      var name = this.getDataTableBlueInfoByIndex(cell - 1).name;
-      this.setVisible(true);
-      this.setViewTitle(name + "的" + this.theme.name + "分析图");
       if (this.theme.change == true) {
         var key = this.getDataTableBlueInfoByIndex(cell - 1).key;
         this.setDataTableBlueSelectedInfoByKey(key);
         this.setDataTableRedSelectedInfo(false);
       }
       var data = this.blueAnalysisByIndex(cell);
+      this.setVisible(true);
+      this.setViewTitle(data.name);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
       this.setSeries(data.series);
     },
     analysisClick: function () {
-      this.setVisible(true);
-      this.setViewTitle("全数据" + this.theme.name + "分析图");
       if (this.theme.change == true) {
         this.setDataTableBlueSelectedInfo(true);
         this.setDataTableRedSelectedInfo(true);
       }
       var data = this.analysis();
+      this.setVisible(true);
+      this.setViewTitle(data.name);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
       this.setSeries(data.series);
     },
     analysisRedClick: function () {
-      this.setVisible(true);
-      this.setViewTitle("红球数据" + this.theme.name + "分析图");
       if (this.theme.change == true) {
         this.setDataTableRedSelectedInfo(true);
         this.setDataTableBlueSelectedInfo(false);
       }
       var data = this.redAnalysis();
+      this.setVisible(true);
+      this.setViewTitle(data.name);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
       this.setSeries(data.series);
     },
     analysisBlueClick: function () {
-      this.setVisible(true);
-      this.setViewTitle("蓝球数据" + this.theme.name + "分析图");
       if (this.theme.change == true) {
         this.setDataTableBlueSelectedInfo(true);
         this.setDataTableRedSelectedInfo(false);
       }
       var data = this.blueAnalysis();
+      this.setVisible(true);
+      this.setViewTitle(data.name);
       this.setLegend(data.legend);
       this.setXAxis(data.xAxis);
       this.setSeries(data.series);

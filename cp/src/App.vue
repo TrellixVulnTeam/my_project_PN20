@@ -1,38 +1,49 @@
 <template>
-  <a-config-provider :locale="locale">
-    <a-layout id="layout-custom-trigger">
-      <a-layout-sider v-model="collapsed" :trigger="null" collapsible>
-        <div class="logo" />
-        <NavView :navList="navList"></NavView>
-      </a-layout-sider>
-      <a-layout>
-        <a-layout-header style="background: #fff; padding: 0">
-          <a-icon
-            class="trigger"
-            :type="collapsed ? 'menu-unfold' : 'menu-fold'"
-            @click="() => (collapsed = !collapsed)"
-          />
-        </a-layout-header>
-        <a-layout-content
-          :style="{
-            margin: '12px 8px',
-            padding: '12px',
-            background: '#fff',
-            minHeight: '280px',
-            overflow: 'auto',
-          }"
-        >
-          <router-view v-if="isRouterAlive" />
-        </a-layout-content>
+  <div id="app">
+    <a-config-provider :locale="$t('language')">
+      <a-layout id="layout-custom-trigger">
+        <a-layout-sider v-model="collapsed" :trigger="null" collapsible>
+          <div class="logo" />
+          <NavView :navList="navList"></NavView>
+        </a-layout-sider>
+        <a-layout>
+          <a-layout-header style="background: #fff; padding: 0">
+            <a-icon
+              class="trigger"
+              :type="collapsed ? 'menu-unfold' : 'menu-fold'"
+              @click="() => (collapsed = !collapsed)"
+            />
+            <a-switch
+              default-checked
+              @change="onChangLanguage"
+              id="localeSwitch"
+            />
+            <span
+              >{{ $t("language.Language") }}/{{
+                $i18n.locale == "zh" ? "中文" : "english"
+              }}</span
+            >
+          </a-layout-header>
+          <a-layout-content
+            :style="{
+              margin: '12px 8px',
+              padding: '12px',
+              background: '#fff',
+              minHeight: '280px',
+              overflow: 'auto',
+            }"
+          >
+            <router-view v-if="isRouterAlive" />
+          </a-layout-content>
+        </a-layout>
       </a-layout>
-    </a-layout>
-  </a-config-provider>
+    </a-config-provider>
+  </div>
 </template>
 
 <script>
 // @ is an alias to /src
 import NavView from "@/views/NavView.vue";
-import zhCN from "ant-design-vue/es/locale/zh_CN";
 import { requestUrl, request } from "@/utils/Http.js";
 
 export default {
@@ -42,11 +53,19 @@ export default {
   },
   data: function () {
     return {
-      locale: zhCN,
       navList: [],
       isRouterAlive: true,
       collapsed: false,
     };
+  },
+  watch: {
+    "$i18n.locale": function (newVal) {
+      if (newVal == "zh") {
+        this.$moment.locale("zh-cn");
+      } else {
+        this.$moment.locale("en");
+      }
+    },
   },
   provide() {
     return {
@@ -67,6 +86,9 @@ export default {
         this.isRouterAlive = true;
       });
     },
+    onChangLanguage() {
+      this.$i18n.locale = this.$i18n.locale == "zh" ? "en" : "zh";
+    },
   },
 };
 </script>
@@ -83,13 +105,18 @@ html {
   height: 100vh;
 }
 
-#layout-custom-trigger {
+#app {
   width: 100%;
   height: 100%;
   overflow: hidden;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#layout-custom-trigger {
+  width: 100%;
+  height: 100%;
 }
 
 #layout-custom-trigger .trigger {
@@ -108,5 +135,9 @@ html {
   height: 32px;
   background: rgba(255, 255, 255, 0.2);
   margin: 16px;
+}
+
+#localeSwitch {
+  margin-right: 10px;
 }
 </style>

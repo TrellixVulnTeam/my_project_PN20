@@ -99,6 +99,7 @@ const QuotientStore = {
       return function (index) {
         if (getter.getDataInfoLength > 0) {
           var name = state.dataTableInfo.red[index - 1].name;
+          name = this.$t("language." + name.slice(0, 3)) + name.slice(3);
           var echartsData = [];
           state.dataInfo.data.forEach((element) => {
             var red = JSON.parse(element.redBall);
@@ -130,7 +131,15 @@ const QuotientStore = {
             xAxis.push(element.IssueNumber);
             series[0].data.push(element.value);
           });
-          return { legend: legend, xAxis: xAxis, series: series };
+          return {
+            legend: legend,
+            xAxis: xAxis,
+            series: series,
+            name: this.$t("language.RedAnalysisByIndexName").format(
+              this.$t("language.Quotient"),
+              index
+            ),
+          };
         }
       };
     },
@@ -163,6 +172,7 @@ const QuotientStore = {
 
           redTempData.forEach((element, index) => {
             var name = state.dataTableInfo.red[index].name;
+            name = this.$t("language." + name.slice(0, 3)) + name.slice(3);
             var temp = {
               name: name,
               type: "line",
@@ -173,7 +183,14 @@ const QuotientStore = {
             legend.data.push(name);
             series.push(temp);
           });
-          return { legend: legend, xAxis: xAxis, series: series };
+          return {
+            legend: legend,
+            xAxis: xAxis,
+            series: series,
+            name: this.$t("language.RedAnalysisName").format(
+              this.$t("language.Quotient")
+            ),
+          };
         }
       };
     },
@@ -181,6 +198,7 @@ const QuotientStore = {
       return function (index) {
         if (getter.getDataInfoLength > 0) {
           var name = state.dataTableInfo.blue[index - 1].name;
+          name = this.$t("language." + name.slice(0, 4)) + name.slice(4);
           var echartsData = [];
           state.dataInfo.data.forEach((element) => {
             var blue = JSON.parse(element.blueBall);
@@ -212,7 +230,15 @@ const QuotientStore = {
             xAxis.push(element.IssueNumber);
             series[0].data.push(element.value);
           });
-          return { legend: legend, xAxis: xAxis, series: series };
+          return {
+            legend: legend,
+            xAxis: xAxis,
+            series: series,
+            name: this.$t("language.BlueAnalysisByIndexName").format(
+              this.$t("language.Quotient"),
+              index
+            ),
+          };
         }
       };
     },
@@ -245,6 +271,7 @@ const QuotientStore = {
 
           blueTempData.forEach((element, index) => {
             var name = state.dataTableInfo.blue[index].name;
+            name = this.$t("language." + name.slice(0, 4)) + name.slice(4);
             var temp = {
               name: name,
               type: "line",
@@ -255,7 +282,14 @@ const QuotientStore = {
             legend.data.push(name);
             series.push(temp);
           });
-          return { legend: legend, xAxis: xAxis, series: series };
+          return {
+            legend: legend,
+            xAxis: xAxis,
+            series: series,
+            name: this.$t("language.BlueAnalysisName").format(
+              this.$t("language.Quotient")
+            ),
+          };
         }
       };
     },
@@ -300,6 +334,7 @@ const QuotientStore = {
 
           redTempData.forEach((element, index) => {
             var name = state.dataTableInfo.red[index].name;
+            name = this.$t("language." + name.slice(0, 3)) + name.slice(3);
             var temp = {
               name: name,
               type: "line",
@@ -313,6 +348,7 @@ const QuotientStore = {
 
           blueTempData.forEach((element, index) => {
             var name = state.dataTableInfo.blue[index].name;
+            name = this.$t("language." + name.slice(0, 4)) + name.slice(4);
             var temp = {
               name: name,
               type: "line",
@@ -323,7 +359,12 @@ const QuotientStore = {
             legend.data.push(name);
             series.push(temp);
           });
-          return { legend: legend, xAxis: xAxis, series: series };
+          return {
+            legend: legend,
+            xAxis: xAxis,
+            series: series,
+            name: this.$t("language.AnalysisName"),
+          };
         }
       };
     },

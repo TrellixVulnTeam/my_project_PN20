@@ -18,13 +18,21 @@
         {{ index + 1 }}
       </span>
 
+      <span slot="idHeader">
+        {{ $t("language.SerialNumber") }}
+      </span>
+
+      <span slot="IssueNumberHeader">
+        {{ $t("language.IssueNumber") }}
+      </span>
+
       <a-button
         type="link"
         size="small"
         slot="redBalls"
         @click="analysisRedClick()"
       >
-        红球
+        {{ $t("language.RedBall") }}
       </a-button>
 
       <a-button
@@ -33,13 +41,13 @@
         slot="blueBalls"
         @click="analysisBlueClick()"
       >
-        蓝球
+        {{ $t("language.BlueBall") }}
       </a-button>
 
       <template v-for="h_item in dataTableInfo.red" :slot="h_item.key">
         <a-tooltip
           placement="topLeft"
-          :title="h_item.name.slice(1)"
+          :title="h_item.name.slice(3)"
           :key="h_item.key"
         >
           <a-button
@@ -47,7 +55,7 @@
             size="small"
             @click="redAnalysisClick(h_item.index)"
           >
-            {{ h_item.name.slice(1) | ellipsis }}
+            {{ h_item.name.slice(3) | ellipsis }}
           </a-button>
         </a-tooltip>
       </template>
@@ -55,7 +63,7 @@
       <template v-for="h_cell in dataTableInfo.blue" :slot="h_cell.key">
         <a-tooltip
           placement="topLeft"
-          :title="h_cell.name.slice(1)"
+          :title="h_cell.name.slice(4)"
           :key="h_cell.key"
         >
           <a-button
@@ -63,7 +71,7 @@
             size="small"
             @click="blueAnalysisClick(h_cell.index)"
           >
-            {{ h_cell.name.slice(1) | ellipsis }}
+            {{ h_cell.name.slice(4) | ellipsis }}
           </a-button>
         </a-tooltip>
       </template>
@@ -85,9 +93,13 @@
       </template>
 
       <template slot="title">
-        {{ baseInfo.name }}
-        <a-button type="link" @click="flashClick"> 刷新 </a-button>
-        <a-button type="link" @click="analysisClick"> 全数据分析 </a-button>
+        {{ $t("language." + baseInfo.name) }}
+        <a-button type="link" @click="flashClick">
+          {{ $t("language.Flash") }}
+        </a-button>
+        <a-button type="link" @click="analysisClick">
+          {{ $t("language.FullDataAnalysis") }}
+        </a-button>
       </template>
     </a-table>
   </div>
@@ -133,7 +145,7 @@ export default {
     },
   },
   created: function () {
-    this.theme = { name: "杀号", change: false };
+    this.theme = { name: "KillNumber", change: false };
     var KillNumberData = this;
     var dataWidth = 70;
     var idWidth = 50;
@@ -141,19 +153,19 @@ export default {
 
     this.columns = [
       {
-        title: "序号",
+        slots: { title: "idHeader" },
         width: idWidth,
-        key: "序号",
+        key: this.$t("language.SerialNumber"),
         align: "center",
         fixed: "left",
         //使用插槽
         scopedSlots: { customRender: "id" },
       },
       {
-        title: "期号",
+        slots: { title: "IssueNumberHeader" },
         width: IssueNumberWidth,
         dataIndex: "IssueNumber",
-        key: "期号",
+        key: this.$t("language.IssueNumber"),
         align: "center",
         fixed: "left",
       },
@@ -174,7 +186,7 @@ export default {
     for (var i = 0; i < this.baseInfo.killNumberRules.length; i++) {
       var item = this.baseInfo.killNumberRules[i];
       if (item.object == 0) {
-        var redKey = "red" + redIndex;
+        var redKey = "Red" + redIndex;
         var subObjRed = {
           key: redKey,
           width: dataWidth,
@@ -187,7 +199,7 @@ export default {
         };
         objRed.children.push(subObjRed);
         var redInfo = {
-          name: "r" + item.name,
+          name: "Red" + item.name,
           index: redIndex,
           key: redKey,
           value: 1,
@@ -201,7 +213,7 @@ export default {
         this.addDataTableRedInfo(redInfo);
         redIndex++;
       } else if (item.object == 1) {
-        var blueKey = "blue" + blueIndex;
+        var blueKey = "Blue" + blueIndex;
         var subObjBlue = {
           key: blueKey,
           width: dataWidth,
@@ -214,7 +226,7 @@ export default {
         };
         objBlue.children.push(subObjBlue);
         var blueInfo = {
-          name: "b" + item.name,
+          name: "Blue" + item.name,
           index: blueIndex,
           key: blueKey,
           value: 1,
@@ -253,50 +265,6 @@ export default {
       setXAxis: "setXAxis",
       setSeries: "setSeries",
     }),
-    redAnalysisClick: function (cell) {
-      console.log("redAnalysisClick", cell);
-      var name = this.getDataTableRedInfoByIndex(cell - 1).name.slice(1);
-      this.setVisible(true);
-      this.setViewTitle(name + "的" + this.theme.name + "分析图");
-      var data = this.redAnalysisByIndex(cell);
-      this.setLegend(data.legend);
-      this.setXAxis(data.xAxis);
-      this.setSeries(data.series);
-    },
-    blueAnalysisClick: function (cell) {
-      console.log("blueAnalysisClick", cell);
-      var name = this.getDataTableBlueInfoByIndex(cell - 1).name.slice(1);
-      this.setVisible(true);
-      this.setViewTitle(name + "的" + this.theme.name + "分析图");
-      var data = this.blueAnalysisByIndex(cell);
-      this.setLegend(data.legend);
-      this.setXAxis(data.xAxis);
-      this.setSeries(data.series);
-    },
-    analysisClick: function () {
-      this.setVisible(true);
-      this.setViewTitle("全数据" + this.theme.name + "分析图");
-      var data = this.analysis();
-      this.setLegend(data.legend);
-      this.setXAxis(data.xAxis);
-      this.setSeries(data.series);
-    },
-    analysisRedClick: function () {
-      this.setVisible(true);
-      this.setViewTitle("红球数据" + this.theme.name + "分析图");
-      var data = this.redAnalysis();
-      this.setLegend(data.legend);
-      this.setXAxis(data.xAxis);
-      this.setSeries(data.series);
-    },
-    analysisBlueClick: function () {
-      this.setVisible(true);
-      this.setViewTitle("蓝球数据" + this.theme.name + "分析图");
-      var data = this.blueAnalysis();
-      this.setLegend(data.legend);
-      this.setXAxis(data.xAxis);
-      this.setSeries(data.series);
-    },
     renderRedCell: function (record, rowIndex, key) {
       var redBall = JSON.parse(record.redBall);
       var index = parseInt(key.slice(3)) - 1;

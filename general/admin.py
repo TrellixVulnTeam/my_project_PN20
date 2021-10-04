@@ -72,19 +72,6 @@ class LotteryStageAdmin(admin.ModelAdmin):
                      'Balance', 'IssueNumber', 'ascription')
 
 
-@admin.register(models.Forecast)
-class ForecastAdmin(admin.ModelAdmin):
-    """
-    注册数据到admin系统进行管理
-    """
-    # 添加分页
-    list_per_page = 10
-    # 列表页展示的字段
-    list_display = ('id', 'IssueNumber', 'redBall', 'blueBall', 'ascription')
-    # 搜索框
-    search_fields = ('id', 'IssueNumber', 'ascription')
-
-
 @admin.register(models.ColdAndHot)
 class ColdAndHotAdmin(admin.ModelAdmin):
     """

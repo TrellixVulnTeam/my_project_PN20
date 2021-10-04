@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from general.models import AscriptionType, GeneralProgramme, Category, LotteryStage, Rule, Forecast, ColdAndHot, KillNumber, KillNumberRule
+from general.models import AscriptionType, GeneralProgramme, Category, LotteryStage, Rule, ColdAndHot, KillNumber, KillNumberRule
 
 
 # class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -64,13 +64,6 @@ class LotteryStageSerializers(serializers.ModelSerializer):
     class Meta:
         model = LotteryStage
         fields = ('IssueNumber', 'time', 'MoneyBalance', 'Balance',
-                  'redBall', 'blueBall', 'ascription')
-
-
-class ForecastSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Forecast
-        fields = ('IssueNumber',
                   'redBall', 'blueBall', 'ascription')
 
 

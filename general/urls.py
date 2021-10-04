@@ -19,9 +19,6 @@ urlpatterns = [
     url(r'^LotteryStage/(?P<ascriptionType>\d+)/$',
         views.LotteryStageListViewSet.as_view()),
 
-    url(r'^Forecast/(?P<ascriptionType>\d+)/$',
-        views.ForecastViewSet.as_view()),
-
     url(r'^ColdAndHot/(?P<ascriptionType>\d+)/$',
         views.ColdAndHotViewSet.as_view()),
 

@@ -18,13 +18,21 @@
         {{ index + 1 }}
       </span>
 
+      <span slot="idHeader">
+        {{ $t("language.SerialNumber") }}
+      </span>
+
+      <span slot="IssueNumberHeader">
+        {{ $t("language.IssueNumber") }}
+      </span>
+
       <a-button
         type="link"
         size="small"
         slot="redBalls"
         @click="analysisRedClick()"
       >
-        红球
+        {{ $t("language.RedBall") }}
       </a-button>
 
       <a-button
@@ -33,7 +41,7 @@
         slot="blueBalls"
         @click="analysisBlueClick()"
       >
-        蓝球
+        {{ $t("language.BlueBall") }}
       </a-button>
 
       <template v-for="h_item in dataTableInfo.red" :slot="h_item.key">
@@ -75,9 +83,13 @@
       </template>
 
       <template slot="title">
-        {{ baseInfo.name }}
-        <a-button type="link" @click="flashClick"> 刷新 </a-button>
-        <a-button type="link" @click="analysisClick"> 全数据分析 </a-button>
+        {{ $t("language." + baseInfo.name) }}
+        <a-button type="link" @click="flashClick">
+          {{ $t("language.Flash") }}
+        </a-button>
+        <a-button type="link" @click="analysisClick">
+          {{ $t("language.FullDataAnalysis") }}
+        </a-button>
       </template>
     </a-table>
   </div>
@@ -113,7 +125,7 @@ export default {
     }),
   },
   created: function () {
-    this.theme = { name: "冷热", change: false };
+    this.theme = { name: "ColdAndHot", change: false };
     var ColdAndHotData = this;
     var dataWidth = 50;
     var idWidth = 50;
@@ -121,19 +133,19 @@ export default {
 
     this.columns = [
       {
-        title: "序号",
+        slots: { title: "idHeader" },
         width: idWidth,
-        key: "序号",
+        key: this.$t("language.SerialNumber"),
         align: "center",
         fixed: "left",
         //使用插槽
         scopedSlots: { customRender: "id" },
       },
       {
-        title: "期号",
+        slots: { title: "IssueNumberHeader" },
         width: IssueNumberWidth,
         dataIndex: "IssueNumber",
-        key: "期号",
+        key: this.$t("language.IssueNumber"),
         align: "center",
         fixed: "left",
       },
@@ -146,7 +158,7 @@ export default {
       : 35;
     var objRed = { slots: { title: "redBalls" }, children: [] };
     for (var i = 1; i < redBallMaxValue + 1; i++) {
-      var redKey = "red" + i;
+      var redKey = "Red" + i;
       var subObjRed = {
         key: redKey,
         width: dataWidth,
@@ -158,7 +170,7 @@ export default {
         },
       };
       var redInfo = {
-        name: "红球" + i,
+        name: redKey,
         index: i,
         key: redKey,
         value: 1,
@@ -181,7 +193,7 @@ export default {
       : 12;
     var objBlue = { slots: { title: "blueBalls" }, children: [] };
     for (var j = 1; j < blueBallMaxValue + 1; j++) {
-      var blueKey = "blue" + j;
+      var blueKey = "Blue" + j;
       var subObjBlue = {
         key: blueKey,
         width: dataWidth,
@@ -193,7 +205,7 @@ export default {
         },
       };
       var blueInfo = {
-        name: "蓝球" + j,
+        name: blueKey,
         index: j,
         key: blueKey,
         value: 1,

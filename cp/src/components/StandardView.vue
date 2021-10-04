@@ -28,9 +28,17 @@
                 />
               </a-col>
               <a-col :span="11">
-                <a-tooltip placement="topLeft" :title="item.name">{{
-                  item.name | ellipsis
-                }}</a-tooltip>
+                <a-tooltip
+                  placement="topLeft"
+                  :title="
+                    $t('language.' + item.name.slice(0, 3)) + item.name.slice(3)
+                  "
+                  >{{
+                    ($t("language." + item.name.slice(0, 3)) +
+                      item.name.slice(3))
+                      | ellipsis
+                  }}</a-tooltip
+                >
               </a-col>
             </a-row>
           </div>
@@ -48,9 +56,17 @@
                 />
               </a-col>
               <a-col :span="11">
-                <a-tooltip placement="topLeft" :title="cell.name">{{
-                  cell.name | ellipsis
-                }}</a-tooltip>
+                <a-tooltip
+                  placement="topLeft"
+                  :title="
+                    $t('language.' + cell.name.slice(0, 4)) + cell.name.slice(4)
+                  "
+                  >{{
+                    ($t("language." + cell.name.slice(0, 4)) +
+                      cell.name.slice(4))
+                      | ellipsis
+                  }}</a-tooltip
+                >
               </a-col>
             </a-row>
           </div>

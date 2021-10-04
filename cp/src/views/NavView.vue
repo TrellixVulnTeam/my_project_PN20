@@ -17,13 +17,15 @@
           <span
             ><a-icon :type="item.type" /><span
               @click="menuClick(item, 'menu' + index)"
-              >{{ item.name }}</span
+              >{{ $t("language." + item.name) }}</span
             ></span
           >
         </a-menu-item>
         <a-sub-menu v-else :key="'menu' + index">
           <span slot="title"
-            ><a-icon :type="item.type" /><span>{{ item.name }}</span></span
+            ><a-icon :type="item.type" /><span>{{
+              $t("language." + item.name)
+            }}</span></span
           >
           <a-menu-item
             v-for="(cell, cellIndex) in item.children"
@@ -32,7 +34,7 @@
             <span
               ><a-icon :type="cell.type" /><span
                 @click="titleClick(cell, item, 'menu' + index, cellIndex)"
-                >{{ cell.name }}</span
+                >{{ $t("language." + cell.name) }}</span
               ></span
             >
           </a-menu-item>

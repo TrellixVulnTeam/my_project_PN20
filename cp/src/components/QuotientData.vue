@@ -18,13 +18,21 @@
         {{ index + 1 }}
       </span>
 
+      <span slot="idHeader">
+        {{ $t("language.SerialNumber") }}
+      </span>
+
+      <span slot="IssueNumberHeader">
+        {{ $t("language.IssueNumber") }}
+      </span>
+
       <a-button
         type="link"
         size="small"
         slot="redBalls"
         @click="analysisRedClick()"
       >
-        红球
+        {{ $t("language.RedBall") }}
       </a-button>
 
       <a-button
@@ -33,7 +41,7 @@
         slot="blueBalls"
         @click="analysisBlueClick()"
       >
-        蓝球
+        {{ $t("language.BlueBall") }}
       </a-button>
 
       <template v-for="h_item in dataTableInfo.red" :slot="h_item.key">
@@ -95,9 +103,13 @@
       </template>
 
       <template slot="title">
-        {{ baseInfo.name }}
-        <a-button type="link" @click="flashClick"> 刷新 </a-button>
-        <a-button type="link" @click="analysisClick"> 全数据分析 </a-button>
+        {{ $t("language." + baseInfo.name) }}
+        <a-button type="link" @click="flashClick">
+          {{ $t("language.Flash") }}
+        </a-button>
+        <a-button type="link" @click="analysisClick">
+          {{ $t("language.FullDataAnalysis") }}
+        </a-button>
       </template>
     </a-table>
   </div>
@@ -133,25 +145,25 @@ export default {
     }),
   },
   created: function () {
-    this.theme = { name: "取商", change: true };
+    this.theme = { name: "Quotient", change: true };
     var idWidth = 50;
     var IssueNumberWidth = 80;
     var dataWidth = 50;
 
     this.columns = [
       {
-        title: "序号",
+        slots: { title: "idHeader" },
         width: idWidth,
-        key: "序号",
+        key: this.$t("language.SerialNumber"),
         align: "center",
         //使用插槽
         scopedSlots: { customRender: "id" },
       },
       {
-        title: "期号",
+        slots: { title: "IssueNumberHeader" },
         width: IssueNumberWidth,
         dataIndex: "IssueNumber",
-        key: "期号",
+        key: this.$t("language.IssueNumber"),
         align: "center",
       },
     ];
@@ -167,7 +179,7 @@ export default {
       children: [],
     };
     for (var i = 1; i < redBallNum + 1; i++) {
-      var redKey = "red" + i;
+      var redKey = "Red" + i;
       var subObjRed = {
         key: redKey,
         width: dataWidth,
@@ -177,7 +189,7 @@ export default {
       };
       objRed.children.push(subObjRed);
       var redInfo = {
-        name: "红球" + i,
+        name: redKey,
         index: i,
         key: redKey,
         value: 1,
@@ -203,7 +215,7 @@ export default {
       children: [],
     };
     for (var j = 1; j < blueBallNum + 1; j++) {
-      var blueKey = "blue" + j;
+      var blueKey = "Blue" + j;
       var subObjBlue = {
         key: blueKey,
         width: dataWidth,
@@ -213,7 +225,7 @@ export default {
       };
       objBlue.children.push(subObjBlue);
       var blueInfo = {
-        name: "蓝球" + j,
+        name: blueKey,
         index: j,
         key: blueKey,
         value: 1,

@@ -2,7 +2,6 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Index from "@/views/Index.vue";
 import Summary from "@/views/Summary.vue";
-import Forecast from "@/views/Forecast.vue";
 import ColdAndHot from "@/views/ColdAndHot.vue";
 import KillNumber from "@/views/KillNumber.vue";
 import Quotient from "@/views/Quotient.vue";
@@ -25,11 +24,6 @@ const routes = [
     path: "/ColdAndHot", //冷热分析
     name: "ColdAndHot",
     component: ColdAndHot,
-  },
-  {
-    path: "/Forecast", //预测
-    name: "Forecast",
-    component: Forecast,
   },
   {
     path: "/Surplus", //取余分析

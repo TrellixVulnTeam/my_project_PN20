@@ -2,6 +2,10 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
+import VueI18n from "vue-i18n";
+import moment from "moment";
+import "moment/locale/zh-cn";
+require("./utils/Prototype");
 
 /*引入资源请求插件*/
 import VueResource from "vue-resource";
@@ -25,6 +29,8 @@ import {
   Col,
   Divider,
   Affix,
+  Calendar,
+  Switch,
 } from "ant-design-vue";
 Vue.use(Layout)
   .use(Icon)
@@ -43,6 +49,8 @@ Vue.use(Layout)
   .use(Col)
   .use(Divider)
   .use(Affix)
+  .use(Calendar)
+  .use(Switch)
   .use(Pagination);
 
 Vue.config.productionTip = false;
@@ -56,8 +64,23 @@ Vue.http.options.root = "http://127.0.0.1:9330/";
 // 全局启用 emulateJSON 选项
 Vue.http.options.emulateJSON = true;
 
+Vue.use(VueI18n);
+
+const i18n = new VueI18n({
+  locale: "zh", // 定义默认语言为中文
+  messages: {
+    zh: require("./VueI18n/language-zh"),
+    en: require("./VueI18n/language-en"),
+  },
+});
+
+// 设置本地时区
+moment.locale("zh-cn");
+Vue.prototype.$moment = moment;
+
 new Vue({
   router,
   store,
+  i18n,
   render: (h) => h(App),
 }).$mount("#app");
