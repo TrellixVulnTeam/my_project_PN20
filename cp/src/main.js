@@ -32,6 +32,7 @@ import {
   Calendar,
   Switch,
   Space,
+  DatePicker,
 } from "ant-design-vue";
 Vue.use(Layout)
   .use(Icon)
@@ -53,6 +54,7 @@ Vue.use(Layout)
   .use(Calendar)
   .use(Switch)
   .use(Space)
+  .use(DatePicker)
   .use(Pagination);
 
 Vue.config.productionTip = false;

@@ -1,11 +1,6 @@
 <template>
   <div class="Index">
-    <a-calendar
-      :fullscreen="false"
-      @panelChange="onPanelChange"
-      :value="$moment()"
-    >
-    </a-calendar>
+    <a-date-picker @change="onChange" @ok="onOk" size="default" />
   </div>
 </template>
 
@@ -18,7 +13,12 @@ export default {
   },
   created: function () {},
   methods: {
-    onPanelChange: function () {},
+    onChange(date, dateString) {
+      console.log(date, dateString);
+    },
+    onOk(value) {
+      console.log("onOk: ", value);
+    },
   },
 };
 </script>
