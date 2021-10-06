@@ -8,21 +8,10 @@
         </a-layout-sider>
         <a-layout>
           <a-layout-header style="background: #fff; padding: 0">
-            <a-icon
-              class="trigger"
-              :type="collapsed ? 'menu-unfold' : 'menu-fold'"
-              @click="() => (collapsed = !collapsed)"
-            />
-            <a-switch
-              default-checked
-              @change="onChangLanguage"
-              id="localeSwitch"
-            />
-            <span
-              >{{ $t("language.Language") }}/{{
-                $i18n.locale == "zh" ? "中文" : "english"
-              }}</span
-            >
+            <LayoutHeader
+              :collapsed="collapsed"
+              @changeCllapsed="changeCllapsed"
+            ></LayoutHeader>
           </a-layout-header>
           <a-layout-content
             :style="{
@@ -44,12 +33,14 @@
 <script>
 // @ is an alias to /src
 import NavView from "@/views/NavView.vue";
+import LayoutHeader from "@/views/LayoutHeader.vue";
 import { requestUrl, request } from "@/utils/Http.js";
 
 export default {
   name: "App",
   components: {
     NavView,
+    LayoutHeader,
   },
   data: function () {
     return {
@@ -86,8 +77,8 @@ export default {
         this.isRouterAlive = true;
       });
     },
-    onChangLanguage() {
-      this.$i18n.locale = this.$i18n.locale == "zh" ? "en" : "zh";
+    changeCllapsed: function (collapsed) {
+      this.collapsed = !collapsed;
     },
   },
 };
@@ -135,9 +126,5 @@ html {
   height: 32px;
   background: rgba(255, 255, 255, 0.2);
   margin: 16px;
-}
-
-#localeSwitch {
-  margin-right: 10px;
 }
 </style>

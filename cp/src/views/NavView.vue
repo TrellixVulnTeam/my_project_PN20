@@ -59,7 +59,7 @@ export default {
     return {
       rootSubmenuKeys: [],
       openKeys: ["menu0"],
-      selectedKeys: [],
+      selectedKeys: ["menu0"],
     };
   },
   watch: {
@@ -74,7 +74,8 @@ export default {
   created: function () {},
   methods: {
     menuClick: function (obj, key) {
-      console.log("menuClick", obj);
+      console.log("menuClick", obj, key);
+      this.openKeys = [];
       this.selectedKeys = [key];
       this.$router.push({
         path: typeof obj.localPath == "undefined" ? "/" : obj.localPath,
@@ -89,7 +90,7 @@ export default {
       });
     },
     titleClick: function (obj, item, key, index) {
-      console.log("titleClick", obj);
+      console.log("titleClick", obj, item, key, index);
       this.selectedKeys = [key, index];
       this.$router.push({
         path: obj.localPath,
@@ -108,7 +109,13 @@ export default {
       var latestOpenKey = openKeys.find(
         (key) => this.openKeys.indexOf(key) === -1
       );
-      this.selectedKeys = [];
+
+      if (typeof latestOpenKey != "undefined") {
+        this.selectedKeys = [latestOpenKey, 0];
+        var item = this.navList[parseInt(latestOpenKey.slice(4))];
+        this.titleClick(item.children[0], item, latestOpenKey, 0);
+      }
+
       if (this.rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
         this.openKeys = openKeys;
       } else {

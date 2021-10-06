@@ -1,7 +1,5 @@
 <template>
-  <div class="Index">
-    <a-date-picker @change="onChange" @ok="onOk" size="default" />
-  </div>
+  <div class="Index">index</div>
 </template>
 
 <script>
@@ -12,14 +10,7 @@ export default {
     return {};
   },
   created: function () {},
-  methods: {
-    onChange(date, dateString) {
-      console.log(date, dateString);
-    },
-    onOk(value) {
-      console.log("onOk: ", value);
-    },
-  },
+  methods: {},
 };
 </script>
 

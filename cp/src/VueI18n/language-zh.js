@@ -1,7 +1,8 @@
 import zhCN from "ant-design-vue/es/locale/zh_CN";
 
 var lan = {
-  Language: "语言",
+  Characters: "语言",
+  Language: "中文",
   Index: "首页",
   Dlt: "大乐透",
   Ssq: "双色球",

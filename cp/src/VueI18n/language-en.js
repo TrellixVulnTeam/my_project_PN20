@@ -1,7 +1,8 @@
 import en from "ant-design-vue/es/locale/en_US";
 
 var lan = {
-  Language: "Language",
+  Characters: "Language",
+  Language: "english",
   Index: "Index",
   Dlt: "Dlt",
   Ssq: "Ssq",
