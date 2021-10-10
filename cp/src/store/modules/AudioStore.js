@@ -1,5 +1,7 @@
 import { requestUrl, request } from "@/utils/Http.js";
 import { parseLrc } from "@/utils/ParseLrc.js";
+import { deepClone } from "@/utils/util.js";
+import Vue from "vue";
 
 const AudioStore = {
   namespaced: true,
@@ -164,7 +166,24 @@ const AudioStore = {
       if (typeof musicInfo == "undefined") {
         return null;
       }
-      return musicInfo;
+      return deepClone(musicInfo);
+    },
+    getMusicSrcInfo(state, getter) {
+      var src = getter.getMusicInfoByKey("src");
+      if (src.length <= 1) {
+        return null;
+      }
+      var baseURL = Vue.http.options.root;
+      var url = requestUrl(baseURL, "get", "api/stream_video", { path: src });
+      console.log("getMusicSrcInfo", url);
+      return url;
+    },
+    getMusicLrcInfo(state, getter) {
+      var lrc = getter.getMusicInfoByKey("lrc");
+      var baseURL = Vue.http.options.root;
+      var url = requestUrl(baseURL, "get", "api/stream_video", { path: lrc });
+      console.log("getMusicLrcInfo", url);
+      return url;
     },
     getAudioByKey(state) {
       return function (key) {

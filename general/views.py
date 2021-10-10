@@ -45,10 +45,10 @@ def stream_video(request):
     path = posixpath.normpath(reqPath).lstrip('/')
     fullpath = Path(safe_join(settings.STATIC_ROOT, path))
     if fullpath.is_dir():
-        raise Response(status=status.HTTP_404_NOT_FOUND,
-                       data="Directory indexes are not allowed here.")
+        return Response(status=status.HTTP_404_NOT_FOUND,
+                        data="Directory indexes are not allowed here.")
     if not fullpath.exists():
-        raise Response(status=status.HTTP_404_NOT_FOUND, data=(
+        return Response(status=status.HTTP_404_NOT_FOUND, data=(
             '“%(path)s” does not exist') % {'path': fullpath})
 
     range_header = request.META.get('HTTP_RANGE', '').strip()

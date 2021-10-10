@@ -135,7 +135,7 @@ export default {
   filters: {
     titleEllipsis(value) {
       if (!value) return "";
-      var len = 15;
+      var len = 14;
       if (value.length > len) {
         return value.slice(0, len) + "...";
       }
@@ -143,7 +143,7 @@ export default {
     },
     lyricEllipsis(value) {
       if (!value) return "";
-      var len = 55;
+      var len = 47;
       if (value.length > len) {
         return value.slice(0, len) + "...";
       }
@@ -177,6 +177,8 @@ export default {
       getMusicInfo: "getMusicInfo",
       getPrevPlayIndex: "getPrevPlayIndex",
       getNextPlayIndex: "getNextPlayIndex",
+      getMusicSrcInfo: "getMusicSrcInfo",
+      getMusicLrcInfo: "getMusicLrcInfo",
     }),
     ...mapState("AudioStore", {
       REPEATSTATE: "REPEATSTATE",
@@ -229,10 +231,8 @@ export default {
     this.initAudio();
     this.setMusicListAction("api/Song").then(() => {
       this.setMusicInfo(this.getMusicInfo);
-      this.$refs.Raudio.src = this.getMusicInfoByKey("src");
-      this.loadLrcAction(this.getMusicInfoByKey("lrc")).then((e) =>
-        console.log(e)
-      );
+      this.$refs.Raudio.src = this.getMusicSrcInfo;
+      this.loadLrcAction(this.getMusicLrcInfo).then((e) => console.log(e));
       if (this.getAudioByKey("autoplay")) {
         this.play();
       }
@@ -408,8 +408,8 @@ export default {
       var index = this.getPlayIndex;
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
-      this.$refs.Raudio.src = this.getMusicInfoByKey("src");
-      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
+      this.$refs.Raudio.src = this.getMusicSrcInfo;
+      this.loadLrcAction(this.getMusicLrcInfo);
       this.play();
     },
     // 播放音频
@@ -432,8 +432,8 @@ export default {
       var index = this.getPrevPlayIndex;
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
-      this.$refs.Raudio.src = this.getMusicInfoByKey("src");
-      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
+      this.$refs.Raudio.src = this.getMusicSrcInfo;
+      this.loadLrcAction(this.getMusicLrcInfo);
       this.play();
     },
     PlayClick: function () {
@@ -448,8 +448,8 @@ export default {
       this.pause();
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
-      this.$refs.Raudio.src = this.getMusicInfoByKey("src");
-      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
+      this.$refs.Raudio.src = this.getMusicSrcInfo;
+      this.loadLrcAction(this.getMusicLrcInfo);
       this.play();
     },
     NextClick: function () {
@@ -459,8 +459,8 @@ export default {
       var index = this.getNextPlayIndex;
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
-      this.$refs.Raudio.src = this.getMusicInfoByKey("src");
-      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
+      this.$refs.Raudio.src = this.getMusicSrcInfo;
+      this.loadLrcAction(this.getMusicLrcInfo);
       this.play();
     },
     SoundClick: function () {
@@ -479,7 +479,7 @@ export default {
       }
     },
     ContainerClick: function () {
-      this.visible = true;
+      this.visible = !this.visible;
     },
     onClose() {
       this.visible = false;
