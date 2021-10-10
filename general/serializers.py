@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from general.models import AscriptionType, GeneralProgramme, Category, LotteryStage, Rule, ColdAndHot, KillNumber, KillNumberRule
+from general.models import AscriptionType, GeneralProgramme, Category, LotteryStage, Rule, ColdAndHot, KillNumber, KillNumberRule, Song
 
 
 # class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -84,3 +84,9 @@ class KillNumberSerializers(serializers.ModelSerializer):
         model = KillNumber
         fields = ('IssueNumber',
                   'redBall', 'blueBall', 'ascription', 'lotteryStage_redBall', 'lotteryStage_blueBall')
+
+
+class SongSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Song
+        fields = ('artist', 'title', 'src', 'pic', 'lrc', 'theme')

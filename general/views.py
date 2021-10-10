@@ -1,7 +1,11 @@
 import re
+import os
+from wsgiref.util import FileWrapper
+from django.http import StreamingHttpResponse
 from rest_framework.serializers import Serializer
-from general.serializers import GeneralProgrammeSerializers, CategorySerializers, LotteryStageSerializers, ColdAndHotSerializers, KillNumberSerializers
-from general.models import GeneralProgramme, Category, LotteryStage, ColdAndHot, KillNumber
+from general.serializers import GeneralProgrammeSerializers, CategorySerializers, \
+    LotteryStageSerializers, ColdAndHotSerializers, KillNumberSerializers, SongSerializers
+from general.models import GeneralProgramme, Category, LotteryStage, ColdAndHot, KillNumber, Song
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,8 +15,67 @@ from general.utils import geturl
 from lxml import etree
 import json
 import math
+import mimetypes
+from django.conf import settings
+import posixpath
+from pathlib import Path
+from django.utils._os import safe_join
 
 # Create your views here.
+
+
+def file_iterator(file_name, chunk_size=8192, offset=0, length=None):
+    with open(file_name, "rb") as f:
+        f.seek(offset, os.SEEK_SET)
+        remaining = length
+        while True:
+            bytes_length = chunk_size if remaining is None else min(
+                remaining, chunk_size)
+            data = f.read(bytes_length)
+            if not data:
+                break
+            if remaining:
+                remaining -= len(data)
+            yield data
+
+
+def stream_video(request):
+    """将视频文件以流媒体的方式响应"""
+    reqPath = request.GET.get('path')
+    path = posixpath.normpath(reqPath).lstrip('/')
+    fullpath = Path(safe_join(settings.STATIC_ROOT, path))
+    if fullpath.is_dir():
+        raise Response(status=status.HTTP_404_NOT_FOUND,
+                       data="Directory indexes are not allowed here.")
+    if not fullpath.exists():
+        raise Response(status=status.HTTP_404_NOT_FOUND, data=(
+            '“%(path)s” does not exist') % {'path': fullpath})
+
+    range_header = request.META.get('HTTP_RANGE', '').strip()
+    range_re = re.compile(r'bytes\s*=\s*(\d+)\s*-\s*(\d*)', re.I)
+    range_match = range_re.match(range_header)
+    size = os.path.getsize(fullpath)
+    content_type, encoding = mimetypes.guess_type(fullpath)
+    content_type = content_type or 'application/octet-stream'
+    if range_match:
+        first_byte, last_byte = range_match.groups()
+        first_byte = int(first_byte) if first_byte else 0
+        last_byte = first_byte + 1024 * 1024 * 8    # 8M 每片,响应体最大体积
+        if last_byte >= size:
+            last_byte = size - 1
+        length = last_byte - first_byte + 1
+        resp = StreamingHttpResponse(file_iterator(
+            fullpath, offset=first_byte, length=length), status=206, content_type=content_type)
+        resp['Content-Length'] = str(length)
+        resp['Content-Range'] = 'bytes %s-%s/%s' % (
+            first_byte, last_byte, size)
+    else:
+        # 不是以视频流方式的获取时，以生成器方式返回整个文件，节省内存
+        resp = StreamingHttpResponse(FileWrapper(
+            open(fullpath, 'rb')), content_type=content_type)
+        resp['Content-Length'] = str(size)
+    resp['Accept-Ranges'] = 'bytes'
+    return resp
 
 
 class AdaptPagination(PageNumberPagination):
@@ -490,4 +553,31 @@ class QuotientViewSet(APIView):
 
         serializer = LotteryStageSerializers(
             navList.LotteryStages.all(), many=True)
+        return Response(serializer.data)
+
+
+class SongViewSet(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            songs = Song.objects.all()
+        except Song.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # p = AdaptPagination()
+        # # 在数据库中获取分页数据
+        # pager_roles = p.paginate_queryset(
+        #     queryset=songs, request=request, view=self)
+
+        # if pager_roles is not None:
+        #     serializer = SongSerializers(
+        #         instance=pager_roles, many=True)
+        #     data = {
+        #         'request': request,
+        #         'msg': '成功',
+        #         'code': 0,
+        #         'data': serializer.data
+        #     }
+        #     return p.get_paginated_response(data)
+
+        serializer = SongSerializers(songs, many=True)
         return Response(serializer.data)

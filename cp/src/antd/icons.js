@@ -14,3 +14,8 @@ export { default as UpOutline } from "@ant-design/icons/lib/outline/UpOutline";
 export { default as HomeOutline } from "@ant-design/icons/lib/outline/HomeOutline";
 export { default as CalendarOutline } from "@ant-design/icons/lib/outline/CalendarOutline";
 export { default as CloseCircleOutline } from "@ant-design/icons/lib/outline/CloseCircleOutline";
+export { default as BackwardOutline } from "@ant-design/icons/lib/outline/BackwardOutline";
+export { default as PlayCircleOutline } from "@ant-design/icons/lib/outline/PlayCircleOutline";
+export { default as PauseCircleOutline } from "@ant-design/icons/lib/outline/PauseCircleOutline";
+export { default as ForwardOutline } from "@ant-design/icons/lib/outline/ForwardOutline";
+export { default as ContainerOutline } from "@ant-design/icons/lib/outline/ContainerOutline";

@@ -37,6 +37,8 @@ var lan = {
   AnalysisName: "Full data analysis chart",
   RedAnalysisByIndexName_kill: "{0} analysis diagram of {1}",
   BlueAnalysisByIndexName_kill: "{0} analysis diagram of {1}",
+  SongList: "Song list",
+  Artist: "artist",
 };
 
 export const language = Object.assign(en, lan);

@@ -109,3 +109,16 @@ class KillNumberAdmin(admin.ModelAdmin):
     list_display = ('id', 'IssueNumber', 'redBall', 'blueBall', 'ascription')
     # 搜索框
     search_fields = ('id', 'IssueNumber', 'ascription')
+
+
+@admin.register(models.Song)
+class SongAdmin(admin.ModelAdmin):
+    """
+    注册歌曲数据到admin系统进行管理
+    """
+    # 添加分页
+    list_per_page = 10
+    # 列表页展示的字段
+    list_display = ('id', 'artist', 'title', 'src', 'pic', 'lrc', 'theme')
+    # 搜索框
+    search_fields = ('id', 'artist', 'title', 'src', 'pic', 'lrc', 'theme')

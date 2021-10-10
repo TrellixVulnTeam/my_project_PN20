@@ -1,20 +1,23 @@
 <template>
   <div class="LayoutHeader">
     <a-row type="flex" justify="space-around">
-      <a-col :flex="99">
+      <a-col :span="1">
         <a-icon
           class="trigger"
           :type="collapsed ? 'menu-unfold' : 'menu-fold'"
           @click="onClickCollapsedCallBack"
         />
       </a-col>
-      <a-col :flex="1">
+      <a-col :span="16">
+        <CustomAudio></CustomAudio>
+      </a-col>
+      <a-col :span="6">
         <a-space :size="size">
           <a-switch default-checked @change="onChangLanguage" />
           <span
             >{{ $t("language.Characters") }}/{{ $t("language.Language") }}</span
           >
-          <a-date-picker @change="onChange" @ok="onOk" size="default" />
+          <a-date-picker @change="onChange" size="default" />
         </a-space>
       </a-col>
     </a-row>
@@ -22,8 +25,13 @@
 </template>
 
 <script>
+import CustomAudio from "@/components/CustomAudio.vue";
+
 export default {
-  name: "Index",
+  name: "LayoutHeader",
+  components: {
+    CustomAudio,
+  },
   props: {
     collapsed: {
       type: Boolean,
@@ -46,14 +54,25 @@ export default {
     onChange(date, dateString) {
       console.log(date, dateString);
     },
-    onOk(value) {
-      console.log("onOk: ", value);
-    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-// .Index {
-// }
+.LayoutHeader {
+  width: 100%;
+  height: 100%;
+}
+
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 18px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.trigger:hover {
+  color: #1890ff;
+}
 </style>

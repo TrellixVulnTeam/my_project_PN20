@@ -30,6 +30,10 @@ urlpatterns = [
 
     url(r'^Quotient/(?P<ascriptionType>\d+)/$',
         views.QuotientViewSet.as_view()),
+
+    url(r'^Song/$', views.SongViewSet.as_view()),
+
+    url(r'^stream_video/$', views.stream_video),
 ]
 
 '''

@@ -37,6 +37,8 @@ var lan = {
   AnalysisName: "全数据分析图",
   RedAnalysisByIndexName_kill: "{1}的{0}分析图",
   BlueAnalysisByIndexName_kill: "{1}的{0}分析图",
+  SongList: "歌曲播放列表",
+  Artist: "作者",
 };
 
 export const language = Object.assign(zhCN, lan);

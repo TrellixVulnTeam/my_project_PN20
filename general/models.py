@@ -104,3 +104,15 @@ class KillNumber(models.Model):
 
     class Meta:
         ordering = ('-IssueNumber',)
+
+
+class Song(models.Model):
+    artist = models.CharField(verbose_name='歌手', max_length=100, default='')
+    title = models.CharField(verbose_name='标题', max_length=100, default='')
+    src = models.CharField(verbose_name='地址', max_length=100, default='')
+    pic = models.CharField(verbose_name='封面地址', max_length=100, default='')
+    lrc = models.CharField(verbose_name='歌词', max_length=100, default='')
+    theme = models.CharField(verbose_name='主题色', max_length=100, default='')
+
+    class Meta:
+        ordering = ('artist',)

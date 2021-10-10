@@ -6,7 +6,9 @@ function resolve(dir) {
 }
 module.exports = {
   publicPath: "./",
+  assetsDir: "static",
   configureWebpack: {
+    externals: "hls.js",
     plugins: [new IgnorePlugin(/^\.\/locale$/, /moment$/)],
     resolve: {
       alias: {

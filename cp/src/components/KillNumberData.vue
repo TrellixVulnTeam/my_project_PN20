@@ -93,7 +93,7 @@
       </template>
 
       <template slot="title">
-        <a-space size="25">
+        <a-space :size="size">
           {{ $t("language." + baseInfo.name) }}
           <a-button type="link" @click="flashClick">
             {{ $t("language.Flash") }}
@@ -117,6 +117,7 @@ export default {
   data: function () {
     return {
       columns: [],
+      size: "small",
     };
   },
   computed: {

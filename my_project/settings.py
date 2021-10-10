@@ -133,12 +133,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Add for vuejs
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "cp/dist/static"),
+    os.path.join(BASE_DIR, "commonstatic"),
 ]
 
+MEDIA_URL = '/media/'  # 资源保存目录 media
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # drf配置
 REST_FRAMEWORK = {

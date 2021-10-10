@@ -5,7 +5,7 @@ import store from "./store";
 import VueI18n from "vue-i18n";
 import moment from "moment";
 import "moment/locale/zh-cn";
-import "./components/lazy_antd";
+import "./utils/lazy_antd";
 require("./utils/Prototype");
 
 /*引入资源请求插件*/
