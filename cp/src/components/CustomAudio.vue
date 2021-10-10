@@ -22,11 +22,18 @@
           <a-col :span="24" align="left">
             <div class="lyric">
               <a-space :size="size">
-                <a-tooltip placement="topLeft" :title="musicInfo.title">
-                  <span>{{ musicInfo.title | titleEllipsis }}</span>
+                <a-tooltip
+                  placement="topLeft"
+                  :title="$t('language.Title') + ':' + musicInfo.title"
+                >
+                  <span
+                    ><font color="#ff0000">{{
+                      musicInfo.title | titleEllipsis
+                    }}</font></span
+                  >
                 </a-tooltip>
-                <a-tooltip placement="topLeft" :title="musicInfo.lrc">
-                  <span>{{ musicInfo.lrc | lyricEllipsis }}</span>
+                <a-tooltip placement="topLeft" :title="musicLrc">
+                  <span>{{ musicLrc | lyricEllipsis }}</span>
                 </a-tooltip>
               </a-space>
             </div>
@@ -197,6 +204,23 @@ export default {
         this.$refs.Raudio.currentTime = currentTime;
       },
     },
+    musicLrc: function () {
+      var currentTime = this.getAudioByKey("currentTime");
+      var lrcInfo = this.getMusicInfoByKey("lrc");
+      if (lrcInfo instanceof Array == false || lrcInfo.length <= 0) {
+        return "";
+      }
+      for (var i = 0; i < lrcInfo.length; i++) {
+        var cur_time = lrcInfo[i][0];
+        var cur_lrc = lrcInfo[i][1];
+        var nex_time =
+          typeof lrcInfo[i + 1] == "undefined" ? cur_time : lrcInfo[i + 1][0];
+        if (currentTime >= cur_time && currentTime <= nex_time) {
+          return cur_lrc;
+        }
+      }
+      return lrcInfo[lrcInfo.length - 1][1];
+    },
   },
   created: function () {
     this.resetState();
@@ -206,6 +230,9 @@ export default {
     this.setMusicListAction("api/Song").then(() => {
       this.setMusicInfo(this.getMusicInfo);
       this.$refs.Raudio.src = this.getMusicInfoByKey("src");
+      this.loadLrcAction(this.getMusicInfoByKey("lrc")).then((e) =>
+        console.log(e)
+      );
       if (this.getAudioByKey("autoplay")) {
         this.play();
       }
@@ -226,6 +253,7 @@ export default {
     }),
     ...mapActions("AudioStore", {
       setMusicListAction: "setMusicListAction",
+      loadLrcAction: "loadLrcAction",
     }),
     initAudio() {
       this.$refs.Raudio.controls = this.getAudioByKey(
@@ -291,10 +319,6 @@ export default {
       );
       this.$refs.Raudio.addEventListener("ended", this.onAudioEnded);
       this.$refs.Raudio.addEventListener("error", this.onError);
-
-      // if (this.musicInfo) {
-      //   this.$refs.Raudio.src = this.getMusicInfoByKey("src");
-      // }
     },
     //在音频/视频(audio/video)终止加载时触发。
     onAudioAbort(res) {
@@ -385,6 +409,7 @@ export default {
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
       this.$refs.Raudio.src = this.getMusicInfoByKey("src");
+      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
       this.play();
     },
     // 播放音频
@@ -408,6 +433,7 @@ export default {
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
       this.$refs.Raudio.src = this.getMusicInfoByKey("src");
+      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
       this.play();
     },
     PlayClick: function () {
@@ -423,6 +449,7 @@ export default {
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
       this.$refs.Raudio.src = this.getMusicInfoByKey("src");
+      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
       this.play();
     },
     NextClick: function () {
@@ -433,6 +460,7 @@ export default {
       this.setPlayIndex(index);
       this.setMusicInfo(this.getMusicInfo);
       this.$refs.Raudio.src = this.getMusicInfoByKey("src");
+      this.loadLrcAction(this.getMusicInfoByKey("lrc"));
       this.play();
     },
     SoundClick: function () {

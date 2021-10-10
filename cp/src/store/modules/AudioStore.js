@@ -1,4 +1,5 @@
 import { requestUrl, request } from "@/utils/Http.js";
+import { parseLrc } from "@/utils/ParseLrc.js";
 
 const AudioStore = {
   namespaced: true,
@@ -109,6 +110,19 @@ const AudioStore = {
           context.commit("setMusicList", response.data);
           resolve(response.data);
         });
+      }).catch((e) => {
+        console.log("catch", e);
+      });
+    },
+    loadLrcAction(context, payload) {
+      return new Promise((resolve) => {
+        request(requestUrl(payload, "get"), "get").then((response) => {
+          // 2、处理正常的数据逻辑
+          context.commit("setMusicInfoByKey", { lrc: parseLrc(response) });
+          resolve(parseLrc(response));
+        });
+      }).catch((e) => {
+        console.log("catch", e);
       });
     },
   },

@@ -37,8 +37,10 @@ export function request(url, method, params) {
       params: params,
     })
       .then((res) => {
+        console.log("request", res);
         var data = res.data;
-        if (data.code == 200 || data.code == 0) {
+        var code = typeof data.code == "undefined" ? res.status : data.code;
+        if (code == 200 || code == 0) {
           console.log(url + "成功了", data);
           resolve(data);
         } else {

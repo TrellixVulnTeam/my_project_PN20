@@ -39,6 +39,7 @@ var lan = {
   BlueAnalysisByIndexName_kill: "{0} analysis diagram of {1}",
   SongList: "Song list",
   Artist: "artist",
+  Title: "title",
 };
 
 export const language = Object.assign(en, lan);

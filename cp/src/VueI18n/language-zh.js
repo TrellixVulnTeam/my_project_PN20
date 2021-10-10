@@ -39,6 +39,7 @@ var lan = {
   BlueAnalysisByIndexName_kill: "{1}的{0}分析图",
   SongList: "歌曲播放列表",
   Artist: "作者",
+  Title: "标题",
 };
 
 export const language = Object.assign(zhCN, lan);
